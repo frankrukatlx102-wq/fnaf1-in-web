@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Custom HTTP preview server for Five Nights at Maler.
-Provides static asset delivery with authenticated cryptographic save synchronization.
+HTTP preview server for Five Nights at Freddy's.
+Provides static asset delivery and save data synchronization (.savedata).
 """
 import sys
 import os
@@ -19,9 +19,9 @@ class FazbearRequestHandler(SimpleHTTPRequestHandler):
         if self.path == "/api/save":
             save_file = manage_save.SAVE_FILE
             if not os.path.exists(save_file):
-                default_vault = manage_save.create_vault_save(1, 0, False)
+                default_save = manage_save.create_save_data(1, 0, False)
                 with open(save_file, "w") as f:
-                    f.write(default_vault + "\n")
+                    f.write(default_save + "\n")
             with open(save_file, "r") as f:
                 content = f.read()
             self.send_response(200)
@@ -36,22 +36,22 @@ class FazbearRequestHandler(SimpleHTTPRequestHandler):
         if self.path == "/api/save":
             length = int(self.headers.get("Content-Length", 0))
             body = self.rfile.read(length).decode("utf-8")
-            valid, reason, data = manage_save.verify_vault_save(body)
+            valid, reason, data = manage_save.verify_save_data(body)
             if not valid:
-                self.send_response(403)
+                self.send_response(400)
                 self.send_header("Content-Type", "application/json")
                 self.end_headers()
-                self.wfile.write(f'{{"error":"TAMPERING_DETECTED","reason":"{reason}"}}'.encode("utf-8"))
-                print(f"[SECURITY ALERT] Rejected tampered save attempt: {reason}")
+                self.wfile.write(f'{{"error":"INVALID_SAVE_DATA","reason":"{reason}"}}'.encode("utf-8"))
+                print(f"[SAVE] Rejected invalid save payload: {reason}")
                 return
-            
+
             with open(manage_save.SAVE_FILE, "w") as f:
                 f.write(body + "\n")
-            print(f"[SECURITY] Successfully saved authenticated Night {data.get('night')} progress to .savedata")
+            print(f"[SAVE] Progress synced: Night {data.get('night')} (Stars: {data.get('stars')}) -> .savedata")
             self.send_response(200)
             self.send_header("Content-Type", "application/json")
             self.end_headers()
-            self.wfile.write(b'{"status":"SAVED_AUTHENTICATED"}')
+            self.wfile.write(b'{"status":"SAVED"}')
             return
         return super().do_POST()
 
@@ -59,9 +59,9 @@ def run_server():
     server_address = ('', PORT)
     httpd = HTTPServer(server_address, FazbearRequestHandler)
     print(f"==========================================================")
-    print(f"  FIVE NIGHTS AT MALER - HTTP SECURE PREVIEW SERVER       ")
+    print(f"  FIVE NIGHTS AT FREDDY'S - HTTP PREVIEW SERVER           ")
     print(f"  Listening on: http://localhost:{PORT}/                 ")
-    print(f"  Cryptographic Save Sync: ACTIVE (.savedata)             ")
+    print(f"  Save Data Sync: ACTIVE (.savedata)                      ")
     print(f"==========================================================")
     try:
         httpd.serve_forever()

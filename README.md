@@ -1,13 +1,14 @@
 # Five Nights at Freddy's 1 (Web & GDevelop)
 
-A fan recreation of the original **Five Nights at Freddy's 1**. It runs right in your browser (HTML5 Canvas) and can also be opened and edited in **GDevelop 5**.
+A faithful fan recreation of the original **Five Nights at Freddy's 1**. It runs directly in your browser (HTML5 Canvas & Web Audio API) and can also be opened and edited in **GDevelop 5**.
 
 Everything from the original game is here:
 - **Campaign (Nights 1 to 5)** with Phone Guy's calls
 - **Night 6** for an extra challenge
 - **Custom Night** with 0–20 AI difficulty sliders (including the 20/20/20/20 challenge)
-- **Extra Menu** with animatronic descriptions and a quick night selector
+- **Extra Menu** with animatronic dossiers, signature soundboards, and a night selector
 - **Star progression** saved locally (1 star for Night 5, 2 stars for Night 6, 3 stars for 20/20/20/20)
+- **Data Integrity System** (transparent SHA-256 checksums on save envelopes)
 
 ---
 
@@ -21,7 +22,7 @@ Everything from the original game is here:
 - Run `./preview.sh` to start the local server and open `http://localhost:8080/`.
 - Run `./gdevelop.sh` to open the game in GDevelop 5.
 
-*(You can also just double-click `index.html` to open it directly in most modern browsers).*
+*(You can also just double-click `index.html` to open it directly via `file://` in any modern browser).*
 
 ---
 
@@ -46,37 +47,36 @@ Everything from the original game is here:
 - **Bonnie**: Roams the left side of the building. He can move unpredictably and will eventually show up in your left door window. Close the door when you see him; once the door is shut, he'll leave within a few seconds.
 - **Chica**: Roams the right side and loves making noise in the kitchen. She appears in your right door window. Shut the door to make her walk away.
 - **Foxy**: Hides behind the curtains in Pirate Cove. If you don't check the cameras often enough, he will peek out, leave the cove, and sprint down the west hall. Shut the left door immediately when you hear running footsteps!
-- **Golden Freddy**: A rare hallucination. If he appears sitting in your office, flip your camera monitor up immediately to make him vanish.
+- **Golden Freddy**: A rare supernatural manifestation. If he appears sitting in your office, flip your camera monitor up immediately to make him vanish.
 
 ---
 
-## File Structure
+## Project Structure & Modules
 
-Here is what every file in this repository does:
+The web engine is split into clean, modular components inside `src/`:
 
-- **`index.html`**: The main game engine. Everything runs in this single file using HTML5 Canvas and the Web Audio API (game loop, graphics, sound effects, AI, menus). No external libraries or npm packages needed.
-- **`game.json`**: The GDevelop 5 project file. You can import this into GDevelop to inspect the scene structure or build desktop packages.
-- **`server.py`**: A simple local Python web server that serves the game files and handles progress saving.
-- **`manage_save.py`**: A small CLI script to view, reset, or edit your save file (stars, nights unlocked).
-- **`preview.sh`**: Linux helper script to run the local server and open your browser.
-- **`gdevelop.sh`**: Linux helper script to launch GDevelop 5 with `game.json`.
-- **`launch_web.bat` / `web.bat`**: Windows launcher for the web version.
-- **`launch_gdevelop.bat` / `gdevelop.bat`**: Windows launcher for GDevelop 5.
-- **`generate_fnam.py`**: Helper script to generate or update `game.json` based on the assets folder.
-- **`download_hd_assets.py`**: Helper script used to download and set up image and sound files.
-- **`assets/`**:
-  - `assets/sprites/`: All textures (office rooms, camera views, fan animation, door animations, jumpscares).
-  - `assets/audio/`: All sound effects (ambient office hum, footsteps, door motors, Phone Guy calls, jumpscares).
-  - `assets/fonts/`: Retro fonts used in the interface.
-- **`IMPORTANT.md`**: Legal notice and credits.
-- **`MOVEMENT.md`**: Detailed breakdown of movement tick rates and timers.
-- **`LICENSE`**: The GNU General Public License v3.0 text.
-- **`.gitignore`**: Ignores temporary caches, OS files, and local logs.
+- **`index.html`**: Lightweight HTML5 entry point. Configures the 16:9 responsive container, CRT shader overlay, and scripts.
+- **`src/`**:
+  - **`src/save.js`**: Save state persistence (`localStorage` + backend `/api/save`) and SHA-256 data integrity checks.
+  - **`src/audio.js`**: Web Audio sound loader, looping background streams, and Phone Guy voice sequencer.
+  - **`src/state.js`**: Canvas context, sprite preloader, camera map layouts, and global game state object (`G`).
+  - **`src/ai.js`**: Scott Cawthon-style movement opportunity engine, hourly difficulty scaling, and animatronics roaming state machines.
+  - **`src/office.js`**: Office edge panning, door and light mechanics, power consumption, 3-stage blackout protocol, and camera feed selector.
+  - **`src/render.js`**: Complete Canvas 2D render loop (office, camera feeds, scanlines, menus, Custom Night, Extra dossiers, and jumpscares).
+  - **`src/game.js`**: Shift lifecycles, mouse/keyboard input event handling, and main `requestAnimationFrame` update loop.
+- **`game.json`**: The GDevelop 5 project file. You can import this into GDevelop to inspect scene structures or export desktop builds.
+- **`server.py`**: Local Python HTTP server providing asset delivery and save synchronization.
+- **`manage_save.py`**: CLI utility for inspecting, resetting, or verifying save data envelopes.
+- **`preview.sh` / `gdevelop.sh`**: Linux helper launcher scripts.
+- **`launch_web.bat` / `launch_gdevelop.bat`**: Windows helper launcher scripts.
+- **`IMPORTANT.md`**: Credits and legal copyright notice.
+- **`MOVEMENT.md`**: Breakdown of AI tick intervals and movement probability.
+- **`LICENSE`**: GNU General Public License v3.0 (GPLv3).
 
 ---
 
 ## Credits & License
 
-- **Five Nights at Freddy's**, its characters, story, sounds, and original game mechanics were created by and belong to **Scott Cawthon**. This is a free, non-commercial fan recreation made for fun and educational purposes.
+- **Five Nights at Freddy's**, its characters, story, sounds, and original game mechanics were created by and belong to **Scott Cawthon**. This is a free, non-commercial fan recreation made for preservation and educational purposes.
 - All visual and audio assets are from game preservation archives and open sources. No AI generation tools were used.
-- The code is licensed under the **GNU General Public License v3.0 (GPLv3)**. Feel free to fork, study, or adapt the code.
+- The code is licensed under the **GNU General Public License v3.0 (GPLv3)**.
