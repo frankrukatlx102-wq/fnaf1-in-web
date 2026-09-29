@@ -2,14 +2,14 @@
 set -e
 
 # =========================================================================
-# Five Nights at Maler - GDevelop 5 Project Launcher
+# Five Nights at Freddy's - GDevelop 5 Project Launcher
 # =========================================================================
 
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 GAME_JSON="$PROJECT_DIR/game.json"
 
 echo "========================================================="
-echo "   FIVE NIGHTS AT MALER — GDEVELOP 5 PROJECT LAUNCHER"
+echo "  FIVE NIGHTS AT FREDDY'S — GDEVELOP 5 PROJECT LAUNCHER"
 echo "========================================================="
 echo "Project file: $GAME_JSON"
 

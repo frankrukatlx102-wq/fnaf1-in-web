@@ -1,10 +1,10 @@
 #!/bin/bash
-# Five Nights at Maler - Launcher & Preview Script
+# Five Nights at Freddy's - Launcher & Preview Script
 cd "$(dirname "$0")"
 
 PORT=8080
 echo "=========================================================="
-echo "    FIVE NIGHTS AT MALER (GDevelop 5 Arch Linux Build)    "
+echo "    FIVE NIGHTS AT FREDDY'S (FNaF 1 HD Engine Build)      "
 echo "=========================================================="
 echo ""
 echo "[1] GDevelop Project File:  $(pwd)/game.json"

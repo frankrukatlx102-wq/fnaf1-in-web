@@ -1,91 +1,99 @@
-# Five Nights at Maler (FNaF 1 Clone in GDevelop 5)
+# Five Nights at Freddy's (Authentic FNaF 1 HD Engine)
 
-Scott Cawthon style survival horror game foundation built from scratch for GDevelop 5 on Arch Linux.
-**Strict Non-Generative Asset Policy**: 100% of visual and audio assets are authentic Creative Commons, Open Source, and public domain game preservation assets.
+A faithful, high-definition recreation of Scott Cawthon's classic survival horror game built from scratch without third-party game frameworks. Includes both a standalone browser engine (`index.html`) and an exportable GDevelop 5 project structure (`game.json`).
+
+Licensed under the **GNU General Public License v3.0 (GPLv3)**.
+
+**Strict Non-Generative Asset Policy**: 100% of visual and audio assets are authentic public domain, Creative Commons, and original preservation dumps. Zero generative AI media was used. All original intellectual property and character rights belong to **Scott Cawthon**.
+
+---
+
+## Repository File Structure & Component Breakdown
+
+Each file in this repository serves a specific, isolated role in the project architecture:
+
+### Core Game Engines & Project Files
+- **[`index.html`](index.html)**: **The Primary Web Engine**. A standalone, single-file Full HD (1920x1080) game engine. Contains the complete Canvas 2D hardware-accelerated rendering pipeline, analog CRT scanline and animated static noise filters, Web Audio API sound mixer, state machines, animatronic movement opportunity loops, campaign progression (Nights 1–6), Custom Night, Extra archive, and the Neverlose-style developer debug suite. Zero external npm or framework dependencies.
+- **[`game.json`](game.json)**: **GDevelop 5 Project Specification**. Full native JSON project tree containing scenes, objects, layers, sprite animation definitions, fonts, sound mappings, and events. Can be directly opened, edited, and exported into desktop binaries (Windows/Linux/Mac) through GDevelop 5.
+
+### Server & Save Infrastructure
+- **[`server.py`](server.py)**: **HTTP Server & Secure Vault**. Lightweight Python server with a built-in cryptographic HMAC-SHA256 save vault on port 8080. Handles static asset delivery and synchronizes campaign progress between the client and disk storage.
+- **[`manage_save.py`](manage_save.py)**: **CLI Save Management Tool**. Terminal utility for inspecting cryptographic checksums, resetting shift progress, or unlocking custom night and campaign stars for testing.
+
+### Automated Tooling & Asset Generators
+- **[`generate_fnam.py`](generate_fnam.py)**: **GDevelop Project Compiler**. A Python script that scans the `/assets/` directory (sprites, sounds, fonts) and compiles a validated, cleanly structured `game.json` project for GDevelop 5.
+- **[`download_hd_assets.py`](download_hd_assets.py)**: **Asset Acquisition Tool**. Utility script to fetch and verify high-definition sprites, full animation sequences (including the complete 21-frame blackout jumpscare), and audio stingers from preservation repositories.
+
+### Cross-Platform Launchers
+- **[`preview.sh`](preview.sh)**: **Linux Web Preview Launcher**. Bash script that launches the local Python preview server on port 8080 and automatically opens the game in your default browser.
+- **[`gdevelop.sh`](gdevelop.sh)**: **Linux GDevelop 5 Launcher**. Bash script that locates the GDevelop 5 binary (local directory, system PATH, or Flatpak) and launches `game.json`.
+- **[`launch_web.bat`](launch_web.bat)** / **[`web.bat`](web.bat)**: **Windows Web Launcher**. Batch scripts that detect Python/Py, start the local server, and launch the browser. If Python is absent, opens `index.html` directly in the default browser.
+- **[`launch_gdevelop.bat`](launch_gdevelop.bat)** / **[`gdevelop.bat`](gdevelop.bat)**: **Windows GDevelop Launcher**. Batch scripts that scan standard Windows paths (`%LOCALAPPDATA%`, `%ProgramFiles%`, `%ProgramFiles(x86)%`, `PATH`) and launch `game.json` in GDevelop 5.
+
+### Documentation & Legal
+- **[`README.md`](README.md)**: **Project Overview**. Complete architectural summary, component breakdown, gameplay features, and multiplatform setup guide.
+- **[`IMPORTANT.md`](IMPORTANT.md)**: **Open Source Notice & Legal Credits**. Details on the 100% open-source nature of the project, freedom for community modification, asset preservation policies, and formal copyright attribution to Scott Cawthon.
+- **[`MOVEMENT.md`](MOVEMENT.md)**: **AI & Movement Opportunity Guide**. Exhaustive mathematical and timing reference covering tick intervals, movement opportunity formulas ($R \in [1, 20] \le \text{Level}$), character routes, camera stalling, and door blindspot mechanics.
+- **[`LICENSE`](LICENSE)**: **GNU General Public License v3.0**. Copyleft license ensuring all source code remains free and open for the community.
+- **[`.gitignore`](.gitignore)**: **Git Ignore Rules**. Prevents local caches, environment files, and temporary artifacts from polluting the repository.
+
+### Game Assets (`/assets/`)
+- **`assets/audio/`**: 40+ low-latency `.ogg` and `.wav` sound files: metallic footsteps, camera flip switch, door motor hums, Phone Guy messages (Nights 1–5), Toreador March, jumpscare screams, and 6 AM chimes.
+- **`assets/fonts/`**: Authentic TTF typography including VT323, Special Elite, Creepster, and Inconsolata.
+- **`assets/sprites/`**: 180+ HD textures (1920x1080 and 1600x720): 11 camera room feeds, office variants, 3-frame animated desk fan, 16-frame door transitions, 21-frame blackout jumpscare sequence, radar icons, and easter egg posters (Golden Freddy and Freddy tearing his head off).
 
 ---
 
 ## Technical Specifications
 
-- **Native Resolution**: **1920x1080 (Full HD @ 60 FPS)**
-- **Target Engine**: GDevelop 5 (Native JSON format `game.json` + modular event sheets)
-- **Standalone Web Engine**: HTML5 / Canvas 2D + Web Audio API (`index.html`)
-- **OS**: Arch Linux (verified with `gdevelop`, `node`, `imagemagick`, `ffmpeg`)
+- **Native Resolution**: 1920x1080 (Full HD @ 60 FPS) with dynamic 16:9 aspect preservation
+- **Audio Pipeline**: Web Audio API low-latency spatial mixer
+- **Save Integrity**: Cryptographic HMAC-SHA256 authenticated save format (FCV-2)
+- **Developer Suite**: Built-in Neverlose-style debug and cheat panel (`[C]` key / `[🛠️ DEV]` button)
 
 ---
 
-## Project Structure
+## Key Gameplay Systems
 
-```
-five-nights-at-maler/
-├── game.json                 # Validated GDevelop 5 Full HD Project (1920x1080)
-├── CoreGameLoop.json         # Clock (12 AM - 6 AM), Power drain, Blackout sequence
-├── OfficeInteraction.json    # Mouse panning, Doors, Hallway lights, Tablet flip
-├── CameraSystem.json         # 11 Camera feeds, Static CRT overlay, Minimap
-├── EnemyAI.json              # 4.97s Tick cadence, 1-20 roll, 5 Animatronics AI
-├── AudioEngine.json          # Sound mixer, spatial cues & stingers
-├── index.html                # Standalone Full HD 1080p playable build
-├── preview.sh                # One-click preview & launcher script
-├── generate_fnam.py          # Automated GDevelop 5 project generator
-└── assets/
-    ├── audio/                # 40+ Sound effects (.ogg & .wav) including Phone Guy
-    ├── fonts/                # TTF horror/brutalist fonts (VT323, Creepster, Special Elite)
-    └── sprites/              # 180+ HD textures, camera states, animations, jumpscares & UI
-```
+### 1. Authentic Movement Opportunity & Cadence
+- **Freddy Fazbear**: 3.02s tick cadence. Freezes when watched through cameras (Camera Stall). Sneaks into the office from CAM 4B corner when the monitor is lowered and the right door is open. Depleting battery triggers the 3-stage blackout sequence with music box and full 21-frame jumpscare.
+- **Bonnie**: 4.97s tick cadence. Wanders unpredictably through the dining area, backstage, and supply closet before approaching the left door. Disappears from CAM 2B into the window blindspot. If left unaddressed, slips inside and permanently jams the left door buttons.
+- **Chica**: 4.98s tick cadence. Lingers in the Kitchen (CAM 6) creating audio clattering cues. Approaches the right door blindspot window and jams controls if ignored.
+- **Foxy**: 5.01s tick cadence. Progresses through 4 Pirate Cove stages. Opening the monitor stalls his countdown; directly viewing CAM 1C adds heavy delays (8–14s). Sprints down West Hall CAM 2A, requiring the left door to be shut within 3.5 seconds.
+- **Golden Freddy**: Rare supernatural manifestation triggered via the CAM 2B poster or low-chance roll on Nights 5+. Must flip the monitor back up within 1.2 seconds to banish him, or face a 9.35-second fatal crash screen.
 
----
+### 2. Campaign & Custom Night
+- **Nights 1–5**: Canonical progression with Phone Guy calls on all five nights.
+- **Night 6 (Nightmare Shift)**: High-speed aggressive challenge (unlocks 1st star).
+- **Custom Night (Night 7)**: Full AI level adjustment (0–20) for all four main animatronics with presets (20/20/20/20, 10/10/10/10, pacifist), unlocking the 2nd and 3rd stars.
+- **Extra Menu**: Character dossiers, audio player, and custom shift selector.
 
-## Core Systems & New Features
-
-### 1. Authentic Phone Guy (Фонгай)
-- **Full Night 1 Phone Call**: Original message from Phone Guy ("Hello, hello? Uh, I wanted to record a message for you...") starts after 2.5 seconds at 12:00 AM (`phone_guy_night1.ogg`).
-- **Interactive "MUTE CALL" Button**: Authentic red/white Mute Call button (`mute_call.png`) appears at the top-left of the screen during the call. Clicking it immediately silences Phone Guy.
-
-### 2. Canonical FNaF 1 AI Progression per Night
-- **Night 1 (Canonical Balance)**:
-  - **Maler (Freddy)**: Level 0 (stays on stage all night, attacks only if power goes out).
-  - **Dash (Foxy)**: Level 0 (stays dormant behind Pirate Cove curtain all night).
-  - **Karkas (Bonnie)**: Starts at Level 0 (12 AM - 2 AM), rises to Level 1 at 2 AM, Level 2 at 3 AM, Level 3 at 4 AM.
-  - **Plague (Chica)**: Starts at Level 0 (12 AM - 3 AM), rises to Level 1 at 3 AM.
-- **Subsequent Nights**: Full difficulty curve with active Foxy and Freddy movement, night continuation, and hourly boosts (+1 difficulty at 2 AM, 3 AM, 4 AM).
-
-### 3. Fair Door, Corner & Blindspot System
-- **Corner Stage (CAM 2B & 4B)**: Animatronics are visible at the corner outside the hallway door.
-- **Blindspot Stage (Doorway Window)**:
-  - When moving from the corner, they step into the **Blindspot** and disappear from CAM 2B / 4B!
-  - They are only visible by turning on the Door Light, triggering `windowscare.ogg`.
-  - **Fair Retreat Timer**: If the player shuts the door, after 2.5 seconds they pound the door (`door_pound.ogg`) and retreat to the dining area.
-  - **Office Infiltration & Jammed Buttons**: If the door is left open for 5.5 seconds (or if the monitor is flipped up while they are in the blindspot), they slip inside and jam the door buttons. Lowering the monitor triggers the jumpscare!
-
-### 4. Visual Perfection, Authentic Typography & Hitbox
-- **Official Desk Fan Animation**: Replaced glitchy frames with the authentic 3-frame animation from The Spriters Resource (`fan_1..3.png`), spinning smoothly at 55ms/frame at exact desk coordinates `(ox + 1170, 455, 207, 294)`. Zero seams, zero flickering.
-- **Authentic FNaF 1 White Typography**: HUD fonts for time ("12 AM"), night indicator ("Night 1"), "Power left: 100%", and "Usage: " are crisp authentic white (`#ffffff`). The usage meter displays color-coded energy blocks (green -> yellow -> red), and the monitor flip bar features an authentic white/gray border and text.
-- **Canonical FNaF 1 Minimap (No Elevator)**: Completely eliminated custom/fan maps with elevators. Uses the authentic FNaF 1 `complete_map.png` floorplan with all 11 rooms mapped directly to interactive buttons. Inactive buttons seamlessly blend into the map while selected buttons highlight with bright green.
-- **Spammable Freddy Nose Easter Egg**: Centered at `(ox + 1016, 357)` with an expanded 60px hitbox and instant audio rewind (`freddy_nose.ogg`), enabling rapid "honk honk" spamming.
-
-### 5. Backstage (CAM 5) Variations & Easter Eggs
-- **Normal Backstage**: Authentic room with spare heads and endoskeleton facing away (`backstage.png`).
-- **Bonnie in Backstage**: Bonnie standing in the room (`backstage-b.png`), with a chance to stare close-up into the camera lens (`backstage_bonnie_stare.png`).
-- **Staring Heads Hallucination**: Rare chance when CAM 5 is empty for all the heads and endoskeleton to turn and stare directly into the camera (`backstage_heads_stare.png`).
-- **High-Definition Canonical Sparky Hoax**: Displays the exact viral hoax screenshot (`https://i.imgur.com/L9Csk64.png`) unblurred and scaled to Full HD 1920x1080 (`cam_5_sparky.png`), accessible as an easter egg on CAM 5 when Bonnie is elsewhere.
+### 3. Integrated Developer & Diagnostic Suite (`[C]` key)
+- Live AI level adjustments and presets
+- Real-time radar ESP overlay with door warnings
+- Instant power replenishment and infinite power toggle
+- Force-spawn easter eggs: Golden Freddy, CAM 2B posters, CAM 4B newspaper clippings, "IT'S ME" hallucination flashes
 
 ---
 
-## How to Run
+## Quickstart & Launching
 
-### 1. Standalone HTML5 Browser Preview
-To test and play the game immediately in your browser:
+### On Linux:
 ```bash
-/home/yurist/five-nights-at-maler/preview.sh
-```
-Then open `http://localhost:8080/`.
+# Start local preview server (opens http://localhost:8080/):
+./preview.sh
 
-### 2. In GDevelop 5 GUI
-To open and edit the project visually in GDevelop 5:
-```bash
-~/.local/bin/gdevelop /home/yurist/five-nights-at-maler/game.json
+# Or open in GDevelop 5:
+./gdevelop.sh
 ```
-or run:
-```bash
-/home/yurist/five-nights-at-maler/preview.sh --gdevelop
-```
+
+### On Windows:
+- Double-click **`launch_web.bat`** (or `web.bat`) to run the browser version.
+- Double-click **`launch_gdevelop.bat`** (or `gdevelop.bat`) to open in GDevelop 5.
+
+---
+
+## Legal & Licensing
+
+- **Code License**: This project is licensed under the [GNU General Public License v3.0](LICENSE).
+- **Intellectual Property**: All original characters, names, settings, audio motifs, and lore belong exclusively to **Scott Cawthon**. This project is a non-commercial, open-source preservation and educational recreation.

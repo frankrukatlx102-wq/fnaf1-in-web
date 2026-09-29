@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Five Nights at Maler - Authentic FNaF 1 HD</title>
+  <title>Five Nights at Freddy's - Authentic FNaF 1 HD</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
     body {
@@ -76,9 +76,7 @@
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
-// =========================================================================
-// 1. FAZBEAR CRYPTOGRAPHIC SECURE VAULT (FCV-2) - TAMPER-PROOF SAVE SYSTEM
-// =========================================================================
+// Save data encryption and verification (HMAC-SHA256)
 const SAVE_SALT = "FNAM_FAZBEAR_SECURITY_SALT_2026_ARCH_LINUX";
 const SAVE_SECRET = "M4L3R_D4RK_S3CR3T_P1ZZ4_HMAC_K3Y_X992";
 
@@ -157,7 +155,7 @@ function createVaultSave(night, stars, customUnlocked) {
   const cu = !!customUnlocked;
   const chk = computeSaveChecksum(n, s);
   const payload = {
-    app: "FiveNightsAtMaler",
+    app: "FiveNightsAtFreddys",
     version: "2.0",
     night: n,
     stars: s,
@@ -256,9 +254,7 @@ try {
     }).catch(()=>{});
 } catch(e) {}
 
-// =========================================================================
-// 2. AUDIO ENGINE & PRELOADER
-// =========================================================================
+// Audio preloader and sound effects
 const sounds = {};
 const soundFiles = {
   menu_music: 'assets/audio/menu_music.ogg',
@@ -326,9 +322,7 @@ function stopAllShiftSounds() {
   }
 }
 
-// =========================================================================
-// 3. IMAGE ASSET LOADER
-// =========================================================================
+// Sprite preloader
 const images = {};
 function loadImg(name, path) {
   const img = new Image();
@@ -411,11 +405,15 @@ for (const p of plates) {
 }
 
 // Easter Eggs & Hallucinations
+// Easter Eggs & Hallucinations
 loadImg('east_hall_normal', 'assets/sprites/east_hall_normal.png');
 loadImg('east_hall_itsme', 'assets/sprites/east_hall_itsme.png');
 loadImg('ehallcorner_rules', 'assets/sprites/ehallcorner_rules.png');
 loadImg('pirate_cove_itsme', 'assets/sprites/pirate_cove_itsme.png');
 loadImg('golden_freddy_face', 'assets/sprites/golden_freddy_face.png');
+loadImg('cam_2b_golden', 'assets/sprites/cam_2b_golden.png');
+loadImg('cam_2b_ripping', 'assets/sprites/cam_2b_ripping.png');
+loadImg('poster_freddy_ripping', 'assets/sprites/poster_freddy_ripping.png');
 loadImg('hallu_its_me_1', 'assets/sprites/hallu_its_me_1.png');
 loadImg('hallu_its_me_2', 'assets/sprites/hallu_its_me_2.png');
 loadImg('hallu_bonnie', 'assets/sprites/hallu_bonnie.png');
@@ -452,21 +450,31 @@ for (const c of camTextures) {
   loadImg(c, `assets/sprites/${c}.png`);
 }
 
-// Dash run sequence
+// Foxy run sequence
 for (let i = 0; i < 8; i++) {
   loadImg('dash_run_' + i, `assets/sprites/dash_run_0${i}.png`);
 }
 
-// Jumpscares
+// Jumpscares (Authentic FNaF 1 Animation Sequences)
 for (let i = 0; i < 7; i++) {
+  loadImg('freddy_scare_' + i, `assets/sprites/maler_scare_0${i}.png`);
   loadImg('maler_scare_' + i, `assets/sprites/maler_scare_0${i}.png`);
+  loadImg('bonnie_scare_' + i, `assets/sprites/karkas_scare_0${i}.png`);
   loadImg('karkas_scare_' + i, `assets/sprites/karkas_scare_0${i}.png`);
+  loadImg('foxy_scare_' + i, `assets/sprites/dash_scare_0${i}.png`);
   loadImg('dash_scare_' + i, `assets/sprites/dash_scare_0${i}.png`);
 }
 for (let i = 0; i < 6; i++) {
+  loadImg('chica_scare_' + i, `assets/sprites/plague_scare_0${i}.png`);
   loadImg('plague_scare_' + i, `assets/sprites/plague_scare_0${i}.png`);
-  loadImg('maler_blackout_' + i, `assets/sprites/maler_blackout_0${i}.png`);
 }
+// Full 21-frame Freddy Blackout Jumpscare Sequence
+for (let i = 0; i < 21; i++) {
+  const pad = (i < 10 ? '0' : '') + i;
+  loadImg('freddy_blackout_' + i, `assets/sprites/freddy_blackout_${pad}.png`);
+  loadImg('maler_blackout_' + i, `assets/sprites/freddy_blackout_${pad}.png`);
+}
+loadImg('golden_freddy_scare', 'assets/sprites/entity5_scare.png');
 loadImg('entity5_scare', 'assets/sprites/entity5_scare.png');
 
 // Static Noise
@@ -474,9 +482,7 @@ for (let i = 1; i <= 6; i++) {
   loadImg('static' + i, `assets/sprites/static_${i}.png`);
 }
 
-// =========================================================================
-// 4. GAME STATE & CANONICAL SETUP
-// =========================================================================
+// Global game state
 const initialSave = loadGameSave();
 
 const G = {
@@ -528,7 +534,8 @@ const G = {
   bonnieStareCam5: false,
   cam4bEasterEgg: null,      // null or 1..4 for authentic newspaper clipping on wall
   cam4aItsMe: false,         // "IT'S ME" written on East Hall walls
-  cam2bGoldenPoster: false,   // Golden Freddy poster on CAM 2B
+  cam2bPoster: 'normal',      // 'normal', 'golden', 'ripping'
+  cam2bGoldenPoster: false,   // Golden Freddy poster on CAM 2B (compatibility)
   pirateCoveItsMe: false,    // "IT'S ME" sign on Pirate Cove
   halluActive: false,
   halluTimer: 0,
@@ -546,7 +553,7 @@ const G = {
 
   // Custom Night (Night 7) & Extra Archive System
   customAI: { maler: 20, karkas: 20, plague: 20, dash: 20 },
-  extraSelectedAnim: 0, // 0: Maler, 1: Karkas, 2: Plague, 3: Dash, 4: Entity 5, 5: Night Selector
+  extraSelectedAnim: 0, // 0: Freddy, 1: Bonnie, 2: Chica, 3: Foxy, 4: Golden Freddy, 5: Night Selector
 
   // Clock & Win
   timeSeconds: 0,
@@ -565,7 +572,7 @@ const G = {
   // 1987 Easter Egg Crash
   is1987Crash: false,
 
-  // Scott Cawthon AI System (Independent Precise Cadence Timers & Wandering Engine)
+  // Animatronic AI state
   globalMovementCooldown: 0.0,
   initialGraceTimer: 16.0,
   maler: { level: 0, pos: 1, tickTimer: 3.02, stallTimer: 0, retreatCooldown: 0 },
@@ -582,7 +589,7 @@ const G = {
   jumpscareTimer: 0
 };
 
-// Canonical Camera Map Buttons (Precise FNaF 1 Map Positions)
+// Camera layout buttons
 const camButtons = [
   { id: '1A', plate: '1a', name: 'Show Stage',           x: 1524, y: 549, w: 68, h: 46 },
   { id: '1B', plate: '1b', name: 'Dining Area',          x: 1525, y: 674, w: 68, h: 46 },
@@ -620,9 +627,7 @@ function getAvailableMenuItems() {
   return items;
 }
 
-// =========================================================================
-// 5. CAMERA FEED SELECTION LOGIC
-// =========================================================================
+// Camera feed selection
 function getCameraFeedImage() {
   const malerAt = (r) => {
     if (r === '1A') return G.maler.pos === 1;
@@ -706,8 +711,11 @@ function getCameraFeedImage() {
   // CAM 2B: West Hall Corner (Right outside left door)
   if (cam === '2B') {
     if (karkasAt('2B')) return images['whallcorner-b'];
-    if (G.cam2bGoldenPoster && images['golden_freddy_face']) {
-      return images['golden_freddy_face'];
+    if ((G.cam2bPoster === 'golden' || G.cam2bGoldenPoster) && images['cam_2b_golden']) {
+      return images['cam_2b_golden'];
+    }
+    if (G.cam2bPoster === 'ripping' && images['cam_2b_ripping']) {
+      return images['cam_2b_ripping'];
     }
     return images['whallcorner'];
   }
@@ -771,9 +779,7 @@ function getCameraFeedImage() {
   return images['stage-b-c-f'];
 }
 
-// =========================================================================
-// 6. CONTROLS & INPUT SYSTEM
-// =========================================================================
+// Keyboard and mouse controls
 document.addEventListener('keydown', (e) => {
   const char = e.key.toUpperCase();
   if (char.length === 1 && char >= 'A' && char <= 'Z') {
@@ -793,8 +799,7 @@ document.addEventListener('keydown', (e) => {
     return;
   }
 
-  // --- CHEAT CODES REGISTRY (Silent Activation) ---
-  // 1. IAMHERE: Golden Freddy Callout
+  // Secret cheat codes
   if (G.keyBuffer.endsWith('IAMHERE')) {
     G.keyBuffer = '';
     G.entity5.active = true;
@@ -804,7 +809,7 @@ document.addEventListener('keydown', (e) => {
     return;
   }
 
-  // 2. SKIPNIGHT or CD+: Skip Night to 6:00 AM
+  // Skip to 6 AM
   if (G.keyBuffer.endsWith('SKIPNIGHT') || e.code === 'NumpadAdd' && (e.ctrlKey || G.keyBuffer.endsWith('CD'))) {
     G.keyBuffer = '';
     G.hour = 6;
@@ -816,7 +821,7 @@ document.addEventListener('keydown', (e) => {
     return;
   }
 
-  // 3. INFPOWER: Infinite Battery Toggle
+  // Toggle infinite power
   if (G.keyBuffer.endsWith('INFPOWER')) {
     G.keyBuffer = '';
     G.infinitePower = !G.infinitePower;
@@ -824,14 +829,14 @@ document.addEventListener('keydown', (e) => {
     return;
   }
 
-  // 4. FASTNIGHT: Fast Time Progression
+  // Toggle fast night speed
   if (G.keyBuffer.endsWith('FASTNIGHT')) {
     G.keyBuffer = '';
     G.fastNight = !G.fastNight;
     return;
   }
 
-  // 5. AGGRESSIVE: 20/20/20/20 Challenge Mode
+  // Set 20/20/20/20 AI
   if (G.keyBuffer.endsWith('AGGRESSIVE')) {
     G.keyBuffer = '';
     G.maler.level = 20;
@@ -841,7 +846,7 @@ document.addEventListener('keydown', (e) => {
     return;
   }
 
-  // 6. PACIFIST: All AI to 0
+  // Set 0/0/0/0 pacifist AI
   if (G.keyBuffer.endsWith('PACIFIST')) {
     G.keyBuffer = '';
     G.maler.level = 0;
@@ -1132,24 +1137,24 @@ canvas.addEventListener('click', (e) => {
         if (mx >= 1250 && mx <= 1530) { G.neverloseTab = 3; playSound('switch_click'); return; }
       }
 
-      // TAB 0: AIMBOT / A.I. ENGINE
+      // Tab 0: AI levels
       if (G.neverloseTab === 0) {
-        // Maler level [-] / [+]
+        // Freddy level
         if (my >= 300 && my <= 350) {
           if (mx >= 780 && mx <= 830) { G.maler.level = Math.max(0, G.maler.level - 1); playSound('switch_click'); return; }
           if (mx >= 850 && mx <= 900) { G.maler.level = Math.min(20, G.maler.level + 1); playSound('switch_click'); return; }
         }
-        // Karkas level [-] / [+]
+        // Bonnie level
         if (my >= 370 && my <= 420) {
           if (mx >= 780 && mx <= 830) { G.karkas.level = Math.max(0, G.karkas.level - 1); playSound('switch_click'); return; }
           if (mx >= 850 && mx <= 900) { G.karkas.level = Math.min(20, G.karkas.level + 1); playSound('switch_click'); return; }
         }
-        // Plague level [-] / [+]
+        // Chica level
         if (my >= 440 && my <= 490) {
           if (mx >= 780 && mx <= 830) { G.plague.level = Math.max(0, G.plague.level - 1); playSound('switch_click'); return; }
           if (mx >= 850 && mx <= 900) { G.plague.level = Math.min(20, G.plague.level + 1); playSound('switch_click'); return; }
         }
-        // Dash level [-] / [+]
+        // Foxy level
         if (my >= 510 && my <= 560) {
           if (mx >= 780 && mx <= 830) { G.dash.level = Math.max(0, G.dash.level - 1); playSound('switch_click'); return; }
           if (mx >= 850 && mx <= 900) { G.dash.level = Math.min(20, G.dash.level + 1); playSound('switch_click'); return; }
@@ -1194,7 +1199,10 @@ canvas.addEventListener('click', (e) => {
             G.cam4bEasterEgg = Math.floor(Math.random() * 4) + 1; playSound('switch_click'); return;
           }
           if (my >= 440 && my <= 495) {
-            G.cam2bGoldenPoster = true; playSound('switch_click'); return;
+            G.cam2bPoster = 'golden'; G.cam2bGoldenPoster = true; playSound('switch_click'); return;
+          }
+          if (my >= 510 && my <= 565) {
+            G.cam2bPoster = 'ripping'; G.cam2bGoldenPoster = false; playSound('switch_click'); return;
           }
         }
       }
@@ -1378,11 +1386,22 @@ canvas.addEventListener('click', (e) => {
             }
           }
 
-          // CAM 2B Easter Egg (Golden Freddy Poster - strictly Nights 5+, significantly reduced: 0.2%)
+          // CAM 2B Easter Egg (Golden Freddy Poster & Freddy Ripping Head Off Poster)
           if (b.id === '2B') {
-            if (G.karkas.pos !== 6 && G.currentNight >= 5) {
-              G.cam2bGoldenPoster = (Math.random() < 0.002);
+            if (G.karkas.pos !== 6) {
+              const roll = Math.random();
+              if (roll < 0.035) { // 3.5% chance for Golden Freddy poster
+                G.cam2bPoster = 'golden';
+                G.cam2bGoldenPoster = true;
+              } else if (roll < 0.07) { // 3.5% chance for Freddy Ripping Head poster
+                G.cam2bPoster = 'ripping';
+                G.cam2bGoldenPoster = false;
+              } else {
+                G.cam2bPoster = 'normal';
+                G.cam2bGoldenPoster = false;
+              }
             } else {
+              G.cam2bPoster = 'normal';
               G.cam2bGoldenPoster = false;
             }
           }
@@ -1475,6 +1494,16 @@ function toggleMonitor() {
       G.entity5.active = false;
       G.entity5.timer = 0;
     }
+    if (G.selectedCam === '2B' && G.karkas.pos !== 6) {
+      const roll = Math.random();
+      if (roll < 0.035) {
+        G.cam2bPoster = 'golden';
+        G.cam2bGoldenPoster = true;
+      } else if (roll < 0.07) {
+        G.cam2bPoster = 'ripping';
+        G.cam2bGoldenPoster = false;
+      }
+    }
     if (G.selectedCam === '6' && (G.plague.pos === 4 || G.maler.pos === 4)) {
       sounds.kitchen_rattle.play().catch(()=>{});
     }
@@ -1497,42 +1526,42 @@ function toggleMonitor() {
 
     // If an animatronic slipped into the office, lowering the monitor triggers jumpscare!
     if (G.karkas.inOffice) {
-      triggerJumpscare('karkas', 'Karkas (Infiltrated Office)');
+      triggerJumpscare('karkas', 'Bonnie (Infiltrated Office)');
       return;
     }
     if (G.plague.inOffice) {
-      triggerJumpscare('plague', 'Plague (Infiltrated Office)');
+      triggerJumpscare('plague', 'Chica (Infiltrated Office)');
       return;
     }
 
-    // Golden Freddy trigger: Strictly Nights 5+ with significantly reduced spawn rate (0.1% roll or CAM 2B poster)
-    if (G.currentNight >= 5 && (G.cam2bGoldenPoster || Math.random() < 0.001)) {
+    // Golden Freddy trigger: If CAM 2B Golden Freddy poster was viewed or rare spawn
+    if (G.cam2bPoster === 'golden' || G.cam2bGoldenPoster || (G.currentNight >= 5 && Math.random() < 0.001)) {
       G.entity5.active = true;
       G.entity5.timer = 0;
+      G.cam2bPoster = 'normal';
       G.cam2bGoldenPoster = false;
       triggerHallucinationFlash();
       playSound('windowscare');
     } else {
+      G.cam2bPoster = 'normal';
       G.cam2bGoldenPoster = false;
     }
   }
 }
 
-// Authentic FNaF 1 Movement Opportunity check with global cooldown & Below-15 AI nerfed scaling
+// Movement opportunity check with scaled difficulty below level 15
 function checkMovementOpportunity(level) {
   if (level <= 0) return false;
   if (G.initialGraceTimer > 0) return false;
   if (G.globalMovementCooldown > 0) return false;
 
-  // Below AI 15: intentionally reduced movement opportunity (nerfed progression rate)
-  // For AI < 15: effective level is scaled down (e.g. AI 5 -> effective 2; AI 10 -> effective 4)
-  // Rolling 1..20
+  // Scale down difficulty below level 15 for fair pacing
   const effectiveLevel = (level < 15) ? Math.max(1, Math.floor(level * 0.40)) : level;
   const roll = Math.floor(Math.random() * 20) + 1;
   return roll <= effectiveLevel;
 }
 
-// Start Shift Transition
+// 12:00 AM shift intro
 function startShiftIntro() {
   playSound('switch_click');
   sounds.menu_music.pause();
@@ -1540,13 +1569,13 @@ function startShiftIntro() {
   G.shiftIntroTimer = 0;
 }
 
-// Canonical Scott Cawthon AI Level Progression per Night & Hour (Balanced & Fair)
+// Hourly AI difficulty scaling per night
 function updateAILevelsForHour() {
   const n = G.currentNight;
   const h = G.hour;
 
   if (n === 7) {
-    // Custom Night: strictly uses user configured AI levels
+    // Custom Night
     G.maler.level = G.customAI.maler;
     G.karkas.level = G.customAI.karkas;
     G.plague.level = G.customAI.plague;
@@ -1555,7 +1584,7 @@ function updateAILevelsForHour() {
   }
 
   if (n === 1) {
-    // Night 1: Quiet tutorial night
+    // Night 1
     G.maler.level = 0;
     G.dash.level = 0;
     if (h < 3) {
@@ -1569,31 +1598,31 @@ function updateAILevelsForHour() {
       G.plague.level = 1;
     }
   } else if (n === 2) {
-    // Night 2: Moderate paced, gentle introduction
+    // Night 2
     G.maler.level = 0;
     G.dash.level = (h >= 4) ? 2 : (h >= 3 ? 1 : 0);
     G.karkas.level = (h >= 4) ? 3 : (h >= 3 ? 2 : 1);
     G.plague.level = (h >= 4) ? 2 : (h >= 3 ? 1 : 0);
   } else if (n === 3) {
-    // Night 3: Steady challenge, fair and balanced
+    // Night 3
     G.maler.level = (h >= 4) ? 1 : 0;
     G.dash.level = (h >= 4) ? 3 : (h >= 3 ? 2 : 1);
     G.karkas.level = (h >= 4) ? 3 : (h >= 3 ? 2 : 2);
     G.plague.level = (h >= 4) ? 3 : (h >= 3 ? 2 : 1);
   } else if (n === 4) {
-    // Night 4: Tense, Freddy active
+    // Night 4
     G.maler.level = (h >= 4) ? 2 : (h >= 3 ? 1 : 1);
     G.dash.level = (h >= 4) ? 4 : (h >= 3 ? 3 : 2);
     G.karkas.level = (h >= 4) ? 5 : (h >= 3 ? 4 : 3);
     G.plague.level = (h >= 4) ? 5 : (h >= 3 ? 4 : 3);
   } else if (n === 5) {
-    // Night 5: Challenging finale
+    // Night 5
     G.maler.level = (h >= 4) ? 4 : (h >= 3 ? 3 : 2);
     G.dash.level = (h >= 4) ? 6 : (h >= 3 ? 5 : 4);
     G.karkas.level = (h >= 4) ? 7 : (h >= 3 ? 6 : 5);
     G.plague.level = (h >= 4) ? 7 : (h >= 3 ? 6 : 5);
   } else {
-    // Night 6: Nightmare Shift
+    // Night 6
     G.maler.level = (h >= 4) ? 5 : (h >= 2 ? 4 : 3);
     G.dash.level = (h >= 4) ? 7 : (h >= 2 ? 6 : 5);
     G.karkas.level = (h >= 4) ? 9 : (h >= 2 ? 7 : 6);
@@ -1601,7 +1630,7 @@ function updateAILevelsForHour() {
   }
 }
 
-// Start Actual Night
+// Start shift
 function startShift() {
   G.gameState = 'playing';
   G.power = 100.0;
@@ -1642,6 +1671,7 @@ function startShift() {
 
   G.cam4bEasterEgg = null;
   G.cam4aItsMe = false;
+  G.cam2bPoster = 'normal';
   G.cam2bGoldenPoster = false;
   G.pirateCoveItsMe = false;
   G.winTimer = 0;
@@ -1765,13 +1795,13 @@ function triggerJumpscare(type, reason) {
 
 let lastTime = performance.now();
 
-// =========================================================================
-// 7. GAME LOGIC UPDATE LOOP (SCOTT CAWTHON FUSION CADENCE)
-// =========================================================================
+// Game update loop
 function update(dt) {
-  // 1. MAIN MENU LOGIC
+  // Update CRT static frame
+  G.staticFrame = (Math.floor(performance.now() / 45) % 6) + 1;
+
+  // Main menu
   if (G.gameState === 'menu') {
-    G.staticFrame = (Math.floor(performance.now() / 45) % 6) + 1;
     G.menuTwitchTimer += dt;
 
     if (!G.menuTwitchActive) {
@@ -2010,12 +2040,12 @@ function update(dt) {
         G.blackoutCheckTimer = 0;
         if (Math.random() < 0.20 || G.blackoutStageTimer >= 20.0) {
           sounds.toreador_march.pause();
-          triggerJumpscare('maler_blackout', 'Maler (Blackout Power Loss)');
+          triggerJumpscare('maler_blackout', 'Freddy Fazbear (Blackout Power Loss)');
           return;
         }
       } else if (G.blackoutStageTimer >= 20.0) {
         sounds.toreador_march.pause();
-        triggerJumpscare('maler_blackout', 'Maler (Blackout Power Loss)');
+        triggerJumpscare('maler_blackout', 'Freddy Fazbear (Blackout Power Loss)');
         return;
       }
     }
@@ -2030,7 +2060,6 @@ function update(dt) {
       target = -240 - f * 240;
     }
     G.panX += (target - G.panX) * Math.min(1, dt * 7);
-    G.staticFrame = (Math.floor(performance.now() / 45) % 6) + 1;
     return;
   }
 
@@ -2047,11 +2076,11 @@ function update(dt) {
     G.panX += (target - G.panX) * Math.min(1, dt * 7);
   }
 
-  // Entity 5 (Golden Freddy) in Office
+  // Golden Freddy in Office
   if (G.entity5.active && G.tabletState === 'closed') {
     G.entity5.timer += dt;
     if (G.entity5.timer > 1.2) {
-      triggerJumpscare('entity5', 'Entity 5 (Golden Freddy Phantasm)');
+      triggerJumpscare('entity5', 'Golden Freddy (Supernatural Manifestation)');
       return;
     }
   }
@@ -2059,11 +2088,8 @@ function update(dt) {
   // Static Animation Frame
   G.staticFrame = (Math.floor(performance.now() / 45) % 6) + 1;
 
-  // =======================================================================
-  // INDEPENDENT ENEMY MOVEMENT OPPORTUNITY ENGINE (SCOTT CAWTHON AUTHENTIC)
-  // =======================================================================
-
-  // 1. Karkas (Bonnie) Cadence: 4.97 seconds with Authentic Wandering, Retreat Cooldown & Movement Opportunity
+  // Animatronic movement AI
+  // 1. Bonnie tick (4.97s cadence)
   if (G.karkas.retreatCooldown > 0) {
     G.karkas.retreatCooldown -= dt;
   }
@@ -2132,7 +2158,7 @@ function update(dt) {
     }
   }
 
-  // 2. Plague (Chica) Cadence: 4.98 seconds with Kitchen Lingering, Wandering & Movement Opportunity
+  // 2. Chica tick (4.98s cadence)
   if (G.plague.retreatCooldown > 0) {
     G.plague.retreatCooldown -= dt;
   }
@@ -2160,10 +2186,10 @@ function update(dt) {
         else G.plague.pos = 5;
         moved = true;
       } else if (G.plague.pos === 4) {
-        // Kitchen -> Chica loves lingering in kitchen clattering pots!
+        // Kitchen clatter
         const r = Math.random();
         if (r < 0.55) {
-          // Lingers in Kitchen
+          // Stays in Kitchen
         } else if (r < 0.80) {
           G.plague.pos = 5; // East Hall
           moved = true;
@@ -2172,19 +2198,19 @@ function update(dt) {
           moved = true;
         }
       } else if (G.plague.pos === 5) {
-        // East Hall -> Wanders BACK to Kitchen (40%), Dining (20%), or Corner (40%)
+        // East Hall -> Kitchen (40%), Dining (20%), Corner (40%)
         const r = Math.random();
-        if (r < 0.40) G.plague.pos = 4; // Wanders backward!
-        else if (r < 0.60) G.plague.pos = 2; // Wanders backward!
-        else G.plague.pos = 6; // Corner
+        if (r < 0.40) G.plague.pos = 4;
+        else if (r < 0.60) G.plague.pos = 2;
+        else G.plague.pos = 6;
         moved = true;
       } else if (G.plague.pos === 6) {
-        // Corner -> Wanders BACK to East Hall (45%) or advances to Door Blindspot (55%)
+        // Corner -> East Hall (45%) or Door Blindspot (55%)
         const r = Math.random();
         if (r < 0.45) {
-          G.plague.pos = 5; // Wanders backward!
+          G.plague.pos = 5;
         } else {
-          G.plague.pos = 7; // Blindspot / Window
+          G.plague.pos = 7; // Blindspot
           G.plague.blindspotTimer = 0;
           if (G.lightRightOn) {
             playSound('windowscare');
@@ -2192,15 +2218,13 @@ function update(dt) {
         }
         moved = true;
       } else if (G.plague.pos === 7) {
-        // AT DOOR BLINDSPOT (Governed strictly by Movement Opportunity!)
+        // Blindspot resolution
         if (G.doorRightClosed) {
-          // Door is closed: Chica retreats quietly! NO loud metallic pounding sound!
-          G.plague.pos = (Math.random() < 0.55) ? 4 : 3; // Retreats back to Kitchen or Restrooms
-          G.plague.retreatCooldown = 18.0 + Math.random() * 8.0; // Fair breathing room (18-26s)
+          G.plague.pos = (Math.random() < 0.55) ? 4 : 3;
+          G.plague.retreatCooldown = 18.0 + Math.random() * 8.0;
           G.plague.blindspotTimer = 0;
           moved = true;
         } else {
-          // Door is open: Chica enters office!
           G.plague.inOffice = true;
           G.rightButtonsJammed = true;
           moved = true;
@@ -2213,7 +2237,7 @@ function update(dt) {
     }
   }
 
-  // 3. Maler (Freddy) Cadence: 3.02 seconds (Frozen when camera is watched)
+  // 3. Freddy tick (3.02s cadence) - freezes when camera is watched
   G.maler.tickTimer -= dt;
   if (G.maler.stallTimer > 0) G.maler.stallTimer -= dt;
 
@@ -2239,22 +2263,22 @@ function update(dt) {
       } else if (G.maler.pos === 6) {
         if (G.doorRightClosed) {
           playSound('door_pound');
-          G.maler.pos = 5; // Repelled back to East Hall
-          G.maler.stallTimer = 14.0; // 14s stall
+          G.maler.pos = 5;
+          G.maler.stallTimer = 14.0;
           G.globalMovementCooldown = 1.2;
         } else if (!G.monitorOpen) {
-          triggerJumpscare('maler', 'Maler (East Hall Corner Infiltration)');
+          triggerJumpscare('maler', 'Freddy Fazbear (East Hall Corner Infiltration)');
           return;
         }
       }
     }
   }
 
-  // 4. Dash (Foxy) Cadence: 5.01 seconds with Global Monitor Stalling & Long Recovery
+  // 4. Foxy tick (5.01s cadence) - stalls when monitor is used
   G.dash.tickTimer -= dt;
   if (G.dash.stallTimer > 0) G.dash.stallTimer -= dt;
 
-  // Looking at ANY camera monitor stalls Foxy! Watching Pirate Cove adds massive stall!
+  // Viewing monitor stalls Foxy
   if (G.monitorOpen) {
     if (G.selectedCam === '1C') {
       if (G.dash.stallTimer < 8.0) G.dash.stallTimer = 8.0 + Math.random() * 6.0;
@@ -2275,7 +2299,7 @@ function update(dt) {
     }
   }
 
-  // Dash Sprinting Phase (Fair 3.5s sprint reaction window)
+  // Foxy Sprinting Phase (Fair 3.5s sprint reaction window)
   if (G.dash.stage === 4) {
     G.dash.sprintTimer += dt;
     if (G.dash.sprintTimer >= 3.5) {
@@ -2288,7 +2312,7 @@ function update(dt) {
         G.dash.sprintTimer = 0;
         G.dash.stallTimer = 16.0; // 16s cooldown after door impact!
       } else {
-        triggerJumpscare('dash', 'Dash (The Sprinter)');
+        triggerJumpscare('dash', 'Foxy (West Hallway Breach)');
         return;
       }
     }
@@ -2298,26 +2322,24 @@ function update(dt) {
   if (G.karkas.inOffice) {
     G.karkas.officeTimer = (G.karkas.officeTimer || 0) + dt;
     if (G.karkas.officeTimer >= 6.0 && G.tabletState === 'closed') {
-      triggerJumpscare('karkas', 'Karkas (Infiltrated Office)');
+      triggerJumpscare('karkas', 'Bonnie (Infiltrated Office)');
       return;
     }
   }
   if (G.plague.inOffice) {
     G.plague.officeTimer = (G.plague.officeTimer || 0) + dt;
     if (G.plague.officeTimer >= 6.0 && G.tabletState === 'closed') {
-      triggerJumpscare('plague', 'Plague (Infiltrated Office)');
+      triggerJumpscare('plague', 'Chica (Infiltrated Office)');
       return;
     }
   }
 }
 
-// =========================================================================
-// 8. RENDER ENGINE (1920x1080 FULL HD)
-// =========================================================================
+// Render loop (1920x1080)
 function render() {
   ctx.clearRect(0, 0, 1920, 1080);
 
-  // 1. AUTHENTIC FNAF 1 MAIN MENU RENDER
+  // Main menu
   if (G.gameState === 'menu') {
     ctx.fillStyle = '#000000';
     ctx.fillRect(0, 0, 1920, 1080);
@@ -2343,7 +2365,7 @@ function render() {
     ctx.fillText('Nights', 140, 290);
     ctx.fillText('at', 140, 380);
     ctx.fillStyle = '#ff2222';
-    ctx.fillText('Maler', 140, 480);
+    ctx.fillText("Freddy's", 140, 480);
 
     // Stars earned display (★, ★★, ★★★) with authentic golden glow
     if (G.saveData.stars > 0) {
@@ -2383,7 +2405,7 @@ function render() {
     ctx.fillStyle = '#555555';
     ctx.fillText('v 2.00 (Cryptographic Save Vault & Extra Active)', 80, 1040);
     ctx.textAlign = 'right';
-    ctx.fillText('© 2026 Scott Cawthon / Maler Fazbear Entertainment', 1840, 1040);
+    ctx.fillText('© 2026 Scott Cawthon / Fazbear Entertainment', 1840, 1040);
     return;
   }
 
@@ -2394,7 +2416,7 @@ function render() {
 
     const sImg = images['static' + G.staticFrame];
     if (sImg && sImg.complete) {
-      ctx.globalAlpha = 0.15;
+      ctx.globalAlpha = 0.20 + Math.random() * 0.06;
       ctx.drawImage(sImg, 0, 0, 1920, 1080);
       ctx.globalAlpha = 1.0;
     }
@@ -2409,10 +2431,10 @@ function render() {
     ctx.fillText('НАСТРОЙКА УРОВНЕЙ ИСКУССТВЕННОГО ИНТЕЛЛЕКТА (0 - 20)', 960, 145);
 
     const cards = [
-      { key: 'maler',  name: 'Maler',  sub: 'Freddy analog', img: images.custom_freddy, x: 140, color: '#c28544' },
-      { key: 'karkas', name: 'Karkas', sub: 'Bonnie analog', img: images.custom_bonnie, x: 540, color: '#6866b8' },
-      { key: 'plague', name: 'Plague', sub: 'Chica analog',  img: images.custom_chica,  x: 940, color: '#cccc33' },
-      { key: 'dash',   name: 'Dash',   sub: 'Foxy analog',   img: images.custom_foxy,   x: 1340, color: '#c23333' }
+      { key: 'maler',  name: 'Freddy Fazbear', sub: 'Show Stage Leader', img: images.custom_freddy, x: 140, color: '#c28544' },
+      { key: 'karkas', name: 'Bonnie',         sub: 'Left Hall Prowler', img: images.custom_bonnie, x: 540, color: '#6866b8' },
+      { key: 'plague', name: 'Chica',          sub: 'Right Hall Stalker', img: images.custom_chica,  x: 940, color: '#cccc33' },
+      { key: 'dash',   name: 'Foxy',           sub: 'Pirate Cove Sprinter', img: images.custom_foxy, x: 1340, color: '#c23333' }
     ];
 
     for (const c of cards) {
@@ -2539,7 +2561,7 @@ function render() {
 
     const sImg = images['static' + G.staticFrame];
     if (sImg && sImg.complete) {
-      ctx.globalAlpha = 0.12;
+      ctx.globalAlpha = 0.20 + Math.random() * 0.06;
       ctx.drawImage(sImg, 0, 0, 1920, 1080);
       ctx.globalAlpha = 1.0;
     }
@@ -2565,11 +2587,11 @@ function render() {
     ctx.fillText('<< В ГЛАВНОЕ МЕНЮ', 1660, 88);
 
     const rosterList = [
-      { id: 0, name: 'Maler (Фредди)', color: '#c28544' },
-      { id: 1, name: 'Karkas (Бонни)', color: '#6866b8' },
-      { id: 2, name: 'Plague (Чика)',  color: '#cccc33' },
-      { id: 3, name: 'Dash (Фокси)',   color: '#c23333' },
-      { id: 4, name: 'Entity 5 (Золотой Фредди)', color: '#ffd700' },
+      { id: 0, name: 'Фредди Фазбер', color: '#c28544' },
+      { id: 1, name: 'Бонни', color: '#6866b8' },
+      { id: 2, name: 'Чика',  color: '#cccc33' },
+      { id: 3, name: 'Фокси', color: '#c23333' },
+      { id: 4, name: 'Золотой Фредди', color: '#ffd700' },
       { id: 5, name: '🌙 ВЫБОР СМЕНЫ (НОЧИ)', color: '#00ff88' }
     ];
 
@@ -2735,23 +2757,23 @@ function render() {
       const animDetails = [
         {
           img: images.extra_freddy,
-          title: 'MALER (АНАЛОГ FREDDY FAZBEAR) — ТАКТИЧЕСКИЙ ЛИДЕР',
+          title: 'FREDDY FAZBEAR (ФРЕДДИ ФАЗБЕР) — ТАКТИЧЕСКИЙ ЛИДЕР',
           cadence: '3.02 секунды (активируется с 3-й ночи, в темноте атакует мгновенно)',
           route: 'CAM 1A (Сцена) -> CAM 1B (Зал) -> CAM 7 (Туалеты) -> CAM 6 (Кухня [Аудио]) -> CAM 4A (Вост. холл) -> CAM 4B (Угол) -> Офис',
-          behavior: 'Перемещается исключительно тогда, когда камера НЕ направлена на него. При каждом шаге издает зловещий низкий смех. Подглядывание за ним через монитор полностью сковывает его движения (эффект Camera Stall). Если игрок опустит монитор, когда Малер в углу CAM 4B, и правая дверь открыта — атака неминуема.',
-          tactics: 'Постоянно держите камеру на CAM 4B (угол правого коридора) — это полностью блокирует его вход в офис даже при открытой двери! При истощении энергии Малер начинает медленную осаду под мелодию Тореадора из темноты.'
+          behavior: 'Перемещается исключительно тогда, когда камера НЕ направлена на него. При каждом шаге издает зловещий низкий смех. Подглядывание за ним через монитор полностью сковывает его движения (эффект Camera Stall). Если игрок опустит монитор, когда Фредди в углу CAM 4B, и правая дверь открыта — атака неминуема.',
+          tactics: 'Постоянно держите камеру на CAM 4B (угол правого коридора) — это полностью блокирует его вход в офис даже при открытой двери! При истощении энергии Фредди начинает медленную осаду под мелодию Тореадора из темноты.'
         },
         {
           img: images.extra_bonnie,
-          title: 'KARKAS (АНАЛОГ BONNIE) — НЕУТОМИМЫЙ ОХОТНИК СЛЕПОЙ ЗОНЫ',
+          title: 'BONNIE (БОННИ) — НЕУТОМИМЫЙ ОХОТНИК СЛЕПОЙ ЗОНЫ',
           cadence: '4.97 секунды (активен с 1-й ночи, крайне высокая частота тиков)',
           route: 'CAM 1A (Сцена) -> CAM 1B (Зал) / CAM 5 (Закулисье) -> CAM 2A (Зап. холл) -> CAM 3 (Кладовка) -> CAM 2B (Угол) -> Левая дверь офиса',
-          behavior: 'Атакует строго с левого фланга. Обладает нелинейным блужданием: способен возвращаться в обеденный зал или заглядывать в кладовую. Оказавшись у двери (слепая зона), виден в свете дверного прожектора. Если игрок не закроет дверь вовремя, Каркас проникает в офис и необратимо блокирует кнопки двери и света.',
-          tactics: 'Регулярно проверяйте левый дверной свет короткими нажатиями (экономя энергию). При обнаружении Каркаса у окна немедленно закрывайте левую дверь — через 1.5 секунды он ударит в дверь и отступит в обеденный зал с 15-секундным кулдауном.'
+          behavior: 'Атакует строго с левого фланга. Обладает нелинейным блужданием: способен возвращаться в обеденный зал или заглядывать в кладовую. Оказавшись у двери (слепая зона), виден в свете дверного прожектора. Если игрок не закроет дверь вовремя, Бонни проникает в офис и необратимо блокирует кнопки двери и света.',
+          tactics: 'Регулярно проверяйте левый дверной свет короткими нажатиями (экономя энергию). При обнаружении Бонни у окна немедленно закрывайте левую дверь — через 1.5 секунды он ударит в дверь и отступит в обеденный зал с 15-секундным кулдауном.'
         },
         {
           img: images.extra_chica,
-          title: 'PLAGUE (АНАЛОГ CHICA) — КУХОННЫЙ СТАЛКЕР ПРАВОГО ФЛАНГА',
+          title: 'CHICA (ЧИКА) — КУХОННЫЙ СТАЛКЕР ПРАВОГО ФЛАНГА',
           cadence: '4.98 секунды (активна с 1-2 ночи, оказывает тяжелое психологическое давление)',
           route: 'CAM 1A (Сцена) -> CAM 1B (Зал) -> CAM 7 (Туалеты) -> CAM 6 (Кухня [Грохот посуды]) -> CAM 4A (Вост. холл) -> CAM 4B (Угол) -> Правая дверь',
           behavior: 'Охотится по правому коридору. Обожает часами задерживаться на кухне (CAM 6), где видеопоток отсутствует, но слышен характерный лязг кастрюль и сковородок. Заглядывает в окно правой двери, вытягивая шею. При задержке игрока проникает в офис и заклинивает правую панель управления.',
@@ -2759,7 +2781,7 @@ function render() {
         },
         {
           img: images.extra_foxy,
-          title: 'DASH (АНАЛОГ FOXY) — СВЕРХСКОРОСТНОЙ СПРИНТЕР ПИРАТСКОЙ БУХТЫ',
+          title: 'FOXY THE PIRATE (ФОКСИ) — СВЕРХСКОРОСТНОЙ СПРИНТЕР ПИРАТСКОЙ БУХТЫ',
           cadence: '5.01 секунды (активен со 2-й ночи, реакция на недостаток внимания)',
           route: 'CAM 1C (Пиратская бухта) -> CAM 2A (Западный холл: Спринт) -> Левая дверь Офиса',
           behavior: 'Скрывается за занавесками Пиратской бухты. Проходит 4 строгие фазы: 1) Скрыт; 2) Выглядывает наружу; 3) Вышел из бухты; 4) Бухта пуста — спринт по западному холлу! Игрок обязан мониторить бухту, чтобы сбивать его таймер подготовки. При ударе о закрытую дверь отнимает 1-6% драгоценной энергии батареи.',
@@ -2767,7 +2789,7 @@ function render() {
         },
         {
           img: images.extra_golden_freddy,
-          title: 'ENTITY 5 (ЗОЛОТОЙ ФРЕДДИ) — ТЕЛЕПОРТИРУЮЩИЙСЯ ПРИЗРАК',
+          title: 'GOLDEN FREDDY (ЗОЛОТОЙ ФРЕДДИ) — ТЕЛЕПОРТИРУЮЩИЙСЯ ПРИЗРАК',
           cadence: 'Случайный спавн при опускании монитора (ночи 5-7) или через постер CAM 2B',
           route: 'CAM 2B (Постер искажается) -> Мгновенная материализация прямо в кабинете охранника',
           behavior: 'Потусторонний фантом. Появляется прямо на полу офиса в неестественной позе, вызывая слуховые галлюцинации и вспышки психоделических надписей "IT\'S ME". Игнорирует закрытые двери. Если игрок задержится более чем на 1.2 секунды — вызывает фатальный скример и крушение охранной системы.',
@@ -2911,26 +2933,26 @@ function render() {
     ctx.fillStyle = '#000000';
     ctx.fillRect(0, 0, 1920, 1080);
 
-    const maxScareTime = (G.jumpscareType === 'entity5') ? 9.35 : 1.2;
+    const maxScareTime = (G.jumpscareType === 'entity5') ? 9.35 : 1.4;
     if (G.jumpscareTimer < maxScareTime) {
       let scareImg = null;
-      if (G.jumpscareType === 'maler') {
+      if (G.jumpscareType === 'maler' || G.jumpscareType === 'freddy') {
         const idx = Math.min(6, G.jumpscareFrame);
-        scareImg = images['maler_scare_' + idx];
-      } else if (G.jumpscareType === 'maler_blackout') {
+        scareImg = images['freddy_scare_' + idx] || images['maler_scare_' + idx];
+      } else if (G.jumpscareType === 'maler_blackout' || G.jumpscareType === 'freddy_blackout') {
+        const idx = Math.min(20, G.jumpscareFrame);
+        scareImg = images['freddy_blackout_' + idx] || images['maler_blackout_' + idx];
+      } else if (G.jumpscareType === 'karkas' || G.jumpscareType === 'bonnie') {
+        const idx = Math.min(6, G.jumpscareFrame);
+        scareImg = images['bonnie_scare_' + idx] || images['karkas_scare_' + idx];
+      } else if (G.jumpscareType === 'plague' || G.jumpscareType === 'chica') {
         const idx = Math.min(5, G.jumpscareFrame);
-        scareImg = images['maler_blackout_' + idx];
-      } else if (G.jumpscareType === 'karkas') {
+        scareImg = images['chica_scare_' + idx] || images['plague_scare_' + idx];
+      } else if (G.jumpscareType === 'dash' || G.jumpscareType === 'foxy') {
         const idx = Math.min(6, G.jumpscareFrame);
-        scareImg = images['karkas_scare_' + idx];
-      } else if (G.jumpscareType === 'plague') {
-        const idx = Math.min(5, G.jumpscareFrame);
-        scareImg = images['plague_scare_' + idx];
-      } else if (G.jumpscareType === 'dash') {
-        const idx = Math.min(6, G.jumpscareFrame);
-        scareImg = images['dash_scare_' + idx];
-      } else if (G.jumpscareType === 'entity5') {
-        scareImg = images['entity5_scare'];
+        scareImg = images['foxy_scare_' + idx] || images['dash_scare_' + idx];
+      } else if (G.jumpscareType === 'entity5' || G.jumpscareType === 'golden_freddy') {
+        scareImg = images['golden_freddy_scare'] || images['entity5_scare'];
       }
 
       if (scareImg && scareImg.complete) {
@@ -2968,7 +2990,7 @@ function render() {
     ctx.textAlign = 'left';
     ctx.font = 'bold 20px Consolas, FnafConsolas, monospace';
     ctx.fillStyle = '#ffffff';
-    ctx.fillText('Fatal Application Error: FiveNightsAtMaler.exe', dx + 15, dy + 27);
+    ctx.fillText('Fatal Application Error: FiveNightsAtFreddys.exe', dx + 15, dy + 27);
 
     ctx.fillStyle = '#e81123';
     ctx.fillRect(dx + dw - 40, dy, 40, 40);
@@ -3191,36 +3213,36 @@ function render() {
         let tagOffset = 0;
         ctx.textAlign = 'left';
 
-        // Maler
+        // Freddy Fazbear
         if (posToCam.maler[G.maler.pos] === b.id) {
           ctx.fillStyle = '#ffd700';
           ctx.font = 'bold 20px monospace';
-          ctx.fillText('M', b.x + b.w + 6, b.y + 18 + tagOffset);
+          ctx.fillText('F', b.x + b.w + 6, b.y + 18 + tagOffset);
           tagOffset += 18;
         }
-        // Karkas
+        // Bonnie
         if (posToCam.karkas[G.karkas.pos] === b.id) {
           ctx.fillStyle = '#a080ff';
           ctx.font = 'bold 20px monospace';
-          ctx.fillText('K', b.x + b.w + 6, b.y + 18 + tagOffset);
+          ctx.fillText('B', b.x + b.w + 6, b.y + 18 + tagOffset);
           tagOffset += 18;
         }
-        // Plague
+        // Chica
         if (posToCam.plague[G.plague.pos] === b.id) {
           ctx.fillStyle = '#ffff44';
           ctx.font = 'bold 20px monospace';
-          ctx.fillText('P', b.x + b.w + 6, b.y + 18 + tagOffset);
+          ctx.fillText('C', b.x + b.w + 6, b.y + 18 + tagOffset);
           tagOffset += 18;
         }
-        // Dash
+        // Foxy
         if (b.id === '1C' && G.dash.stage < 4) {
           ctx.fillStyle = '#ff4444';
           ctx.font = 'bold 18px monospace';
-          ctx.fillText(`D:S${G.dash.stage}`, b.x + b.w + 6, b.y + 18 + tagOffset);
+          ctx.fillText(`FOXY:S${G.dash.stage}`, b.x + b.w + 6, b.y + 18 + tagOffset);
         } else if (b.id === '2A' && G.dash.stage === 4) {
           ctx.fillStyle = '#ff0000';
           ctx.font = 'bold 18px monospace';
-          ctx.fillText('D:RUN!', b.x + b.w + 6, b.y + 18 + tagOffset);
+          ctx.fillText('FOXY:RUN!', b.x + b.w + 6, b.y + 18 + tagOffset);
         }
       }
 
@@ -3231,7 +3253,7 @@ function render() {
         ctx.fillStyle = '#ffffff';
         ctx.font = 'bold 22px VT323, monospace';
         ctx.textAlign = 'center';
-        ctx.fillText('! KARKAS AT LEFT DOOR !', 1450, 1030);
+        ctx.fillText('! BONNIE AT LEFT DOOR !', 1450, 1030);
       }
       if (G.plague.pos === 7) {
         ctx.fillStyle = 'rgba(255, 0, 0, 0.85)';
@@ -3239,7 +3261,7 @@ function render() {
         ctx.fillStyle = '#ffffff';
         ctx.font = 'bold 22px VT323, monospace';
         ctx.textAlign = 'center';
-        ctx.fillText('! PLAGUE AT RIGHT DOOR !', 1730, 1030);
+        ctx.fillText('! CHICA AT RIGHT DOOR !', 1730, 1030);
       }
     }
 
@@ -3512,10 +3534,10 @@ function render() {
         drawNeverloseGroupBox(leftGbX, gbY, leftGbW, gbH, 'A.I. CALIBRATION & INDEPENDENT CADENCE');
 
         const aiRobots = [
-          { name: 'Maler (Freddy)', level: G.maler.level, y: gbY + 55, color: '#c28544' },
-          { name: 'Karkas (Bonnie)', level: G.karkas.level, y: gbY + 125, color: '#6866b8' },
-          { name: 'Plague (Chica)', level: G.plague.level, y: gbY + 195, color: '#cccc33' },
-          { name: 'Dash (Foxy)', level: G.dash.level, y: gbY + 265, color: '#c23333' }
+          { name: 'Freddy Fazbear', level: G.maler.level, y: gbY + 55, color: '#c28544' },
+          { name: 'Bonnie', level: G.karkas.level, y: gbY + 125, color: '#6866b8' },
+          { name: 'Chica', level: G.plague.level, y: gbY + 195, color: '#cccc33' },
+          { name: 'Foxy', level: G.dash.level, y: gbY + 265, color: '#c23333' }
         ];
 
         for (const bot of aiRobots) {
@@ -3585,6 +3607,7 @@ function render() {
         drawNeverloseActionBtn(rightGbX + 20, gbY + 55, rightGbW - 40, 52, '🎭 TRIGGER "IT\'S ME" PSYCHEDELIC FLASH', '#ff33ff');
         drawNeverloseActionBtn(rightGbX + 20, gbY + 125, rightGbW - 40, 52, '📰 SPAWN CAM 4B NEWSPAPER CLIPPING', '#00e5ff');
         drawNeverloseActionBtn(rightGbX + 20, gbY + 195, rightGbW - 40, 52, '🖼️ SPAWN CAM 2B GOLDEN FREDDY POSTER', '#ffd700');
+        drawNeverloseActionBtn(rightGbX + 20, gbY + 265, rightGbW - 40, 52, '💀 SPAWN CAM 2B FREDDY RIPPING HEAD POSTER', '#ff4444');
       }
 
       // TAB 2: MISC / SYSTEM
@@ -3625,7 +3648,7 @@ function render() {
       ctx.textAlign = 'center';
       ctx.font = '15px Consolas, FnafConsolas, monospace';
       ctx.fillStyle = '#00e5ff';
-      ctx.fillText(`ENTITIES: Maler: CAM ${G.maler.pos} | Karkas: CAM ${G.karkas.pos} | Plague: CAM ${G.plague.pos} | Dash: Stage ${G.dash.stage}/4 | GF: ${G.entity5.active ? 'IN OFFICE' : 'DORMANT'}`, mx0 + mw / 2, my0 + mh - 100);
+      ctx.fillText(`ANIMATRONICS: Freddy: CAM ${G.maler.pos} | Bonnie: CAM ${G.karkas.pos} | Chica: CAM ${G.plague.pos} | Foxy: Stage ${G.dash.stage}/4 | Golden Freddy: ${G.entity5.active ? 'IN OFFICE' : 'DORMANT'}`, mx0 + mw / 2, my0 + mh - 100);
 
       // Bottom Close Bar Button (x: 660, y: 865, w: 600, h: 50)
       const hoverBottomClose = (G.mouseX >= 660 && G.mouseX <= 1260 && G.mouseY >= 865 && G.mouseY <= 915);
