@@ -45,8 +45,7 @@ function checkMovementOpportunity(level) {
   if (G.initialGraceTimer > 0) return false;
   if (G.globalMovementCooldown > 0) return false;
 
-  // Fair scaling for lower levels (< 15)
-  const effectiveLevel = (level < 15) ? Math.max(1, Math.floor(level * 0.40)) : level;
+  const effectiveLevel = (level < 15) ? Math.max(1, Math.round(level * 0.70)) : level;
   const roll = Math.floor(Math.random() * 20) + 1;
   return roll <= effectiveLevel;
 }
@@ -54,7 +53,7 @@ function checkMovementOpportunity(level) {
 
 ### Safety & Anti-Clumping Timers:
 - **Initial Grace Timer (`16.0s`)**: No animatronic can advance during the first 16 seconds of a shift, giving the player time to check cameras and prepare.
-- **Global Movement Lockout (`1.2s`)**: Once any animatronic successfully moves, a brief 1.2-second global pause prevents multiple simultaneous door breaches.
+- **Global Movement Lockout (`1.0s`)**: Once any animatronic successfully moves, a brief 1.0-second global pause prevents multiple simultaneous door breaches.
 
 ---
 
@@ -64,7 +63,7 @@ function checkMovementOpportunity(level) {
 - **Path**:
   `CAM 1A (Stage)` $\to$ `CAM 1B (Dining)` $\to$ `CAM 7 (Restrooms)` $\to$ `CAM 6 (Kitchen)` $\to$ `CAM 4A (East Hall)` $\to$ `CAM 4B (Corner)` $\to$ `Office`
 - **Camera Stall**: Freddy will **never** move while the player's monitor is actively looking at the room he currently occupies. Watching him on CAM 4B completely prevents him from entering the office.
-- **Right Door Corner Breach**: If Freddy is at CAM 4B and the player lowers the monitor while the right door is open, Freddy attacks. If the right door is closed, Freddy knocks on the door and retreats back to CAM 4A with a 14-second stall.
+- **Right Door Corner Breach**: If Freddy is at CAM 4B and the right door is closed, he knocks on the door after ~3.5s and retreats back to CAM 4A with a 12-second stall. If the right door is left open and the player lowers the monitor, Freddy attacks.
 - **Blackout Protocol**: When office battery reaches 0%, Freddy executes a 3-stage power-out sequence:
   - *Stage 1*: Pitch black darkness (random check every 5s, 20% advance chance).
   - *Stage 2*: Toreador March music box with flickering eyes in the left doorway.
@@ -79,7 +78,7 @@ function checkMovementOpportunity(level) {
 - **Door Blindspot**:
   - When reaching position 7, Bonnie disappears from CAM 2B and stands outside the left office window.
   - Turning on the left hallway light reveals him.
-  - If the door is closed, he retreats to Dining or Backstage with an 18–26s cooldown.
+  - If the door is closed, he lingers for ~3 seconds and retreats back to Dining or Backstage with a 10–16s cooldown (preventing long door stalls at low AI).
   - If the door is left open, he slips into the office, permanently jamming the left door and light switches. Lowering the monitor triggers an immediate jumpscare.
 
 ---
@@ -90,7 +89,7 @@ function checkMovementOpportunity(level) {
 - **Kitchen Clatter**: While in CAM 6, video is unavailable, but audio cues of banging pots and pans play. Chica frequently lingers here.
 - **Door Blindspot**:
   - Visible through the right door window when the right light is switched on.
-  - If the right door is closed, she retreats back to the Kitchen or Restrooms with an 18–26s cooldown.
+  - If the right door is closed, she lingers for ~3 seconds and retreats back to Kitchen or Restrooms with a 10–16s cooldown.
   - If left unaddressed, she infiltrates the office and jams the right door/light switches.
 
 ---

@@ -541,16 +541,6 @@ const G = {
   halluTimer: 0,
   halluImg: null,
 
-  // Cheats System
-  keyBuffer: '',
-  infinitePower: false,
-  fastNight: false,
-  radarActive: false,
-  cheatToastText: '',
-  cheatToastTimer: 0,
-  nightCheatPanelOpen: false,
-  neverloseTab: 0, // 0: Aimbot/AI, 1: Visuals/ESP, 2: Misc/Power, 3: Spawns/Events
-
   // Custom Night (Night 7) & Extra Archive System
   customAI: { maler: 20, karkas: 20, plague: 20, dash: 20 },
   extraSelectedAnim: 0, // 0: Freddy, 1: Bonnie, 2: Chica, 3: Foxy, 4: Golden Freddy, 5: Night Selector
@@ -604,12 +594,6 @@ const camButtons = [
   { id: '4B', plate: '4b', name: 'E. Hall Corner',       x: 1600, y: 949, w: 68, h: 46 }
 ];
 
-function showCheatToast(msg) {
-  G.cheatToastText = msg;
-  G.cheatToastTimer = 2.5;
-  playSound('switch_click');
-}
-
 function getAvailableMenuItems() {
   const items = [
     { id: 'new_game', label: 'New Game', sub: 'Night 1' },
@@ -622,7 +606,7 @@ function getAvailableMenuItems() {
   // Star 2 (beating Night 6) or customUnlocked unlocks Custom Night and Extra menu
   if (G.saveData.stars >= 2 || G.saveData.customUnlocked) {
     items.push({ id: 'custom_night', label: 'Custom Night', sub: '7th Night' });
-    items.push({ id: 'extra', label: 'Extra', sub: 'Roster & Cheats' });
+    items.push({ id: 'extra', label: 'Extra', sub: 'Roster & Archives' });
   }
   return items;
 }
@@ -779,81 +763,11 @@ function getCameraFeedImage() {
   return images['stage-b-c-f'];
 }
 
-// Keyboard and mouse controls
+// Keyboard controls
 document.addEventListener('keydown', (e) => {
-  const char = e.key.toUpperCase();
-  if (char.length === 1 && char >= 'A' && char <= 'Z') {
-    G.keyBuffer += char;
-    if (G.keyBuffer.length > 30) G.keyBuffer = G.keyBuffer.substring(G.keyBuffer.length - 30);
-  }
-
-  // In-Night Cheat Panel Toggle ('C' key or 'Escape' to close)
-  if ((e.code === 'KeyC' || e.key === 'c' || e.key === 'C') && G.gameState === 'playing' && !G.gameOver && !G.nightWon) {
-    G.nightCheatPanelOpen = !G.nightCheatPanelOpen;
+  if (e.code === 'Escape' && G.gameState === 'custom_night') {
+    G.gameState = 'menu';
     playSound('switch_click');
-    return;
-  }
-  if (e.code === 'Escape' && G.nightCheatPanelOpen) {
-    G.nightCheatPanelOpen = false;
-    playSound('switch_click');
-    return;
-  }
-
-  // Secret cheat codes
-  if (G.keyBuffer.endsWith('IAMHERE')) {
-    G.keyBuffer = '';
-    G.entity5.active = true;
-    G.entity5.timer = 0;
-    playSound('windowscare');
-    triggerHallucinationFlash();
-    return;
-  }
-
-  // Skip to 6 AM
-  if (G.keyBuffer.endsWith('SKIPNIGHT') || e.code === 'NumpadAdd' && (e.ctrlKey || G.keyBuffer.endsWith('CD'))) {
-    G.keyBuffer = '';
-    G.hour = 6;
-    G.nightWon = true;
-    G.gameState = 'win';
-    G.winTimer = 0;
-    stopAllShiftSounds();
-    playSound('win');
-    return;
-  }
-
-  // Toggle infinite power
-  if (G.keyBuffer.endsWith('INFPOWER')) {
-    G.keyBuffer = '';
-    G.infinitePower = !G.infinitePower;
-    if (G.infinitePower) G.power = 100.0;
-    return;
-  }
-
-  // Toggle fast night speed
-  if (G.keyBuffer.endsWith('FASTNIGHT')) {
-    G.keyBuffer = '';
-    G.fastNight = !G.fastNight;
-    return;
-  }
-
-  // Set 20/20/20/20 AI
-  if (G.keyBuffer.endsWith('AGGRESSIVE')) {
-    G.keyBuffer = '';
-    G.maler.level = 20;
-    G.karkas.level = 20;
-    G.plague.level = 20;
-    G.dash.level = 20;
-    return;
-  }
-
-  // Set 0/0/0/0 pacifist AI
-  if (G.keyBuffer.endsWith('PACIFIST')) {
-    G.keyBuffer = '';
-    G.maler.level = 0;
-    G.karkas.level = 0;
-    G.plague.level = 0;
-    G.dash.level = 0;
-    return;
   }
 });
 
@@ -1108,205 +1022,6 @@ canvas.addEventListener('click', (e) => {
   if (G.gameState === 'playing') {
     if (G.gameOver || G.nightWon) return;
 
-    // --- NEVERLOSE-STYLE IN-NIGHT CHEAT ENGINE PANEL INTERACTION ---
-    if (G.nightCheatPanelOpen) {
-      // Top-right close button [X] (x: 1490..1540, y: 105..145)
-      if (mx >= 1490 && mx <= 1540 && my >= 105 && my <= 145) {
-        G.nightCheatPanelOpen = false;
-        playSound('switch_click');
-        return;
-      }
-      // Bottom close button (x: 660..1260, y: 865..915)
-      if (mx >= 660 && mx <= 1260 && my >= 865 && my <= 915) {
-        G.nightCheatPanelOpen = false;
-        playSound('switch_click');
-        return;
-      }
-      // Click outside modal closes it
-      if (mx < 360 || mx > 1560 || my < 90 || my > 930) {
-        G.nightCheatPanelOpen = false;
-        playSound('switch_click');
-        return;
-      }
-
-      // Tab bar navigation at y: 165..215
-      if (my >= 165 && my <= 215) {
-        if (mx >= 380 && mx <= 660) { G.neverloseTab = 0; playSound('switch_click'); return; }
-        if (mx >= 670 && mx <= 950) { G.neverloseTab = 1; playSound('switch_click'); return; }
-        if (mx >= 960 && mx <= 1240) { G.neverloseTab = 2; playSound('switch_click'); return; }
-        if (mx >= 1250 && mx <= 1530) { G.neverloseTab = 3; playSound('switch_click'); return; }
-      }
-
-      // Tab 0: AI levels
-      if (G.neverloseTab === 0) {
-        // Freddy level
-        if (my >= 300 && my <= 350) {
-          if (mx >= 780 && mx <= 830) { G.maler.level = Math.max(0, G.maler.level - 1); playSound('switch_click'); return; }
-          if (mx >= 850 && mx <= 900) { G.maler.level = Math.min(20, G.maler.level + 1); playSound('switch_click'); return; }
-        }
-        // Bonnie level
-        if (my >= 370 && my <= 420) {
-          if (mx >= 780 && mx <= 830) { G.karkas.level = Math.max(0, G.karkas.level - 1); playSound('switch_click'); return; }
-          if (mx >= 850 && mx <= 900) { G.karkas.level = Math.min(20, G.karkas.level + 1); playSound('switch_click'); return; }
-        }
-        // Chica level
-        if (my >= 440 && my <= 490) {
-          if (mx >= 780 && mx <= 830) { G.plague.level = Math.max(0, G.plague.level - 1); playSound('switch_click'); return; }
-          if (mx >= 850 && mx <= 900) { G.plague.level = Math.min(20, G.plague.level + 1); playSound('switch_click'); return; }
-        }
-        // Foxy level
-        if (my >= 510 && my <= 560) {
-          if (mx >= 780 && mx <= 830) { G.dash.level = Math.max(0, G.dash.level - 1); playSound('switch_click'); return; }
-          if (mx >= 850 && mx <= 900) { G.dash.level = Math.min(20, G.dash.level + 1); playSound('switch_click'); return; }
-        }
-
-        // Right box presets
-        if (mx >= 990 && mx <= 1490) {
-          if (my >= 300 && my <= 355) {
-            G.maler.level = 20; G.karkas.level = 20; G.plague.level = 20; G.dash.level = 20;
-            playSound('switch_click'); return;
-          }
-          if (my >= 370 && my <= 425) {
-            G.maler.level = 10; G.karkas.level = 10; G.plague.level = 10; G.dash.level = 10;
-            playSound('switch_click'); return;
-          }
-          if (my >= 440 && my <= 495) {
-            G.maler.level = 0; G.karkas.level = 0; G.plague.level = 0; G.dash.level = 0;
-            playSound('switch_click'); return;
-          }
-          if (my >= 510 && my <= 565) {
-            G.maler.pos = 1; G.maler.stallTimer = 12.0;
-            G.karkas.pos = 1; G.karkas.inOffice = false; G.karkas.blindspotTimer = 0;
-            G.plague.pos = 1; G.plague.inOffice = false; G.plague.blindspotTimer = 0;
-            G.dash.stage = 1; G.dash.sprintTimer = 0; G.dash.stallTimer = 14.0;
-            G.entity5.active = false;
-            playSound('switch_click'); return;
-          }
-        }
-      }
-
-      // TAB 1: VISUALS / RADAR ESP
-      if (G.neverloseTab === 1) {
-        if (mx >= 420 && mx <= 910 && my >= 300 && my <= 355) {
-          G.radarActive = !G.radarActive;
-          playSound('switch_click'); return;
-        }
-        if (mx >= 990 && mx <= 1490) {
-          if (my >= 300 && my <= 355) {
-            triggerHallucinationFlash(); G.pirateCoveItsMe = true; playSound('windowscare'); return;
-          }
-          if (my >= 370 && my <= 425) {
-            G.cam4bEasterEgg = Math.floor(Math.random() * 4) + 1; playSound('switch_click'); return;
-          }
-          if (my >= 440 && my <= 495) {
-            G.cam2bPoster = 'golden'; G.cam2bGoldenPoster = true; playSound('switch_click'); return;
-          }
-          if (my >= 510 && my <= 565) {
-            G.cam2bPoster = 'ripping'; G.cam2bGoldenPoster = false; playSound('switch_click'); return;
-          }
-        }
-      }
-
-      // TAB 2: MISC / INFRASTRUCTURE
-      if (G.neverloseTab === 2) {
-        if (mx >= 420 && mx <= 910) {
-          if (my >= 300 && my <= 355) {
-            G.infinitePower = !G.infinitePower;
-            if (G.infinitePower) G.power = 100.0;
-            playSound('switch_click'); return;
-          }
-          if (my >= 370 && my <= 425) {
-            G.nightCheatPanelOpen = false;
-            G.power = 0;
-            G.blackout = true;
-            G.blackoutStage = 1;
-            G.blackoutStageTimer = 0;
-            G.blackoutCheckTimer = 0;
-            G.doorLeftClosed = false;
-            G.doorRightClosed = false;
-            G.lightLeftOn = false;
-            G.lightRightOn = false;
-            G.tabletState = 'closed';
-            G.monitorOpen = false;
-            stopAllShiftSounds();
-            playSound('powerdown'); return;
-          }
-          if (my >= 440 && my <= 495) {
-            G.power = 100.0; playSound('switch_click'); return;
-          }
-          if (my >= 510 && my <= 565) {
-            G.leftButtonsJammed = false; G.rightButtonsJammed = false;
-            playSound('switch_click'); return;
-          }
-        }
-        if (mx >= 990 && mx <= 1490) {
-          if (my >= 300 && my <= 355) {
-            G.fastNight = !G.fastNight; playSound('switch_click'); return;
-          }
-          if (my >= 370 && my <= 425) {
-            G.nightCheatPanelOpen = false;
-            G.hour = 6;
-            G.nightWon = true;
-            G.gameState = 'win';
-            G.winTimer = 0;
-            G.winProcessed = false;
-            stopAllShiftSounds();
-            playSound('win'); return;
-          }
-          if (my >= 440 && my <= 495) {
-            const hSec = G.fastNight ? 4.0 : 60.0;
-            G.timeSeconds += hSec; playSound('switch_click'); return;
-          }
-        }
-      }
-
-      // TAB 3: SPAWNER & EXPLOITS
-      if (G.neverloseTab === 3) {
-        if (mx >= 420 && mx <= 910) {
-          if (my >= 300 && my <= 355) {
-            G.entity5.active = true;
-            G.entity5.timer = 0;
-            G.nightCheatPanelOpen = false;
-            playSound('golden_freddy_scream');
-            triggerHallucinationFlash(); return;
-          }
-          if (my >= 370 && my <= 425) {
-            G.karkas.pos = 7;
-            G.karkas.blindspotTimer = 0;
-            if (G.lightLeftOn) playSound('windowscare');
-            playSound('switch_click'); return;
-          }
-          if (my >= 440 && my <= 495) {
-            G.plague.pos = 7;
-            G.plague.blindspotTimer = 0;
-            if (G.lightRightOn) playSound('windowscare');
-            playSound('switch_click'); return;
-          }
-          if (my >= 510 && my <= 565) {
-            G.dash.stage = 4;
-            G.dash.sprintTimer = 0;
-            G.nightCheatPanelOpen = false;
-            playSound('dash_sprint'); return;
-          }
-        }
-        if (mx >= 990 && mx <= 1490) {
-          if (my >= 300 && my <= 355) { playSound('golden_freddy_scream'); return; }
-          if (my >= 370 && my <= 425) { sounds.toreador_march.currentTime = 0; sounds.toreador_march.play().catch(()=>{}); return; }
-          if (my >= 440 && my <= 495) { playSound('door_pound'); return; }
-        }
-      }
-
-      return; // Absorb any click inside Neverlose modal
-    }
-
-    // Open In-Night Cheat Panel HUD Button (x: 820, y: 15, w: 280, h: 42)
-    if (mx >= 820 && mx <= 1100 && my >= 15 && my <= 57) {
-      G.nightCheatPanelOpen = true;
-      playSound('switch_click');
-      return;
-    }
-    if (G.gameOver || G.nightWon) return;
-
     // Mute Phone Guy Button (Available on ALL nights 1 to 5)
     if (G.phoneCallActive && !G.phoneCallMuted) {
       if (mx >= 60 && mx <= 240 && my >= 70 && my <= 120) {
@@ -1549,14 +1264,13 @@ function toggleMonitor() {
   }
 }
 
-// Movement opportunity check with scaled difficulty below level 15
+// Movement opportunity check (scaled difficulty for fair pacing)
 function checkMovementOpportunity(level) {
   if (level <= 0) return false;
   if (G.initialGraceTimer > 0) return false;
   if (G.globalMovementCooldown > 0) return false;
 
-  // Scale down difficulty below level 15 for fair pacing
-  const effectiveLevel = (level < 15) ? Math.max(1, Math.floor(level * 0.40)) : level;
+  const effectiveLevel = (level < 15) ? Math.max(1, Math.round(level * 0.70)) : level;
   const roll = Math.floor(Math.random() * 20) + 1;
   return roll <= effectiveLevel;
 }
@@ -1676,7 +1390,6 @@ function startShift() {
   G.pirateCoveItsMe = false;
   G.winTimer = 0;
   G.winProcessed = false;
-  G.nightCheatPanelOpen = false;
 
   G.gameOver = false;
   G.gameOverReason = '';
@@ -1702,7 +1415,6 @@ function startShift() {
 
 function resetToMenu() {
   G.gameState = 'menu';
-  G.nightCheatPanelOpen = false;
   G.winProcessed = false;
   G.gameOver = false;
   G.gameOverReason = '';
@@ -1780,7 +1492,6 @@ function triggerJumpscare(type, reason) {
   G.gameOverReason = reason;
   G.jumpscareTimer = 0;
   G.jumpscareFrame = 0;
-  G.nightCheatPanelOpen = false;
   if (G.dash) {
     G.dash.stage = 1;
     G.dash.sprintTimer = 0;
@@ -1873,10 +1584,6 @@ function update(dt) {
     G.initialGraceTimer -= dt;
   }
 
-  if (G.cheatToastTimer > 0) {
-    G.cheatToastTimer -= dt;
-  }
-
   // Hallucination Flash Timer
   if (G.halluActive) {
     G.halluTimer -= dt;
@@ -1936,8 +1643,8 @@ function update(dt) {
     G.doorRightFrame = Math.max(0, G.doorRightFrame - dt * 28);
   }
 
-  // Clock Progression (60s per in-game hour, or 4s in FASTNIGHT cheat mode)
-  const hourDuration = G.fastNight ? 4.0 : 60.0;
+  // Clock Progression (60s per in-game hour)
+  const hourDuration = 60.0;
   G.timeSeconds += dt;
   const oldHour = G.hour;
   const elapsedHours = Math.floor(G.timeSeconds / hourDuration);
@@ -1961,14 +1668,11 @@ function update(dt) {
     updateAILevelsForHour();
   }
 
-  // Power & 3-Stage Blackout System (Authentic FNaF 1 Scott Cawthon Formula)
+  // Power & 3-Stage Blackout System (FNaF 1 Formula)
   if (!G.blackout) {
-    if (G.infinitePower) {
-      G.power = 100.0;
-    } else {
-      G.usage = 1 + (G.doorLeftClosed ? 1 : 0) + (G.doorRightClosed ? 1 : 0) + (G.lightLeftOn ? 1 : 0) + (G.lightRightOn ? 1 : 0) + (G.monitorOpen ? 1 : 0);
-      G.power -= 0.1 * G.usage * dt;
-      if (G.power <= 0) {
+    G.usage = 1 + (G.doorLeftClosed ? 1 : 0) + (G.doorRightClosed ? 1 : 0) + (G.lightLeftOn ? 1 : 0) + (G.lightRightOn ? 1 : 0) + (G.monitorOpen ? 1 : 0);
+    G.power -= 0.1 * G.usage * dt;
+    if (G.power <= 0) {
         G.power = 0;
         G.blackout = true;
         G.blackoutStage = 1;
@@ -1985,7 +1689,6 @@ function update(dt) {
         stopAllShiftSounds();
         playSound('powerdown');
       }
-    }
   } else {
     G.blackoutStageTimer += dt;
     G.blackoutCheckTimer += dt;
@@ -2089,7 +1792,33 @@ function update(dt) {
   G.staticFrame = (Math.floor(performance.now() / 45) % 6) + 1;
 
   // Animatronic movement AI
-  // 1. Bonnie tick (4.97s cadence)
+  // 1. Bonnie Door Blindspot Linger & Resolution
+  if (G.karkas.pos === 7) {
+    G.karkas.blindspotTimer = (G.karkas.blindspotTimer || 0) + dt;
+    if (G.doorLeftClosed) {
+      // Door is closed: Bonnie lingers only briefly (2.5 to 3.5s) then leaves!
+      // This prevents Bonnie from being stuck forever at the door when closed at low AI.
+      if (G.karkas.blindspotTimer >= 3.0) {
+        G.karkas.pos = (Math.random() < 0.6) ? 2 : 3; // Dining Area or Backstage
+        G.karkas.retreatCooldown = 10.0 + Math.random() * 6.0;
+        G.karkas.blindspotTimer = 0;
+        G.globalMovementCooldown = 1.0;
+      }
+    } else {
+      // Door is open:
+      // If player lifts monitor while Bonnie is at the door, or leaves door open for 3.8s:
+      if ((G.monitorOpen && G.karkas.blindspotTimer >= 0.8) || G.karkas.blindspotTimer >= 3.8) {
+        G.karkas.inOffice = true;
+        G.leftButtonsJammed = true;
+        G.karkas.pos = 0; // Moves inside office, clears blindspot window
+        G.karkas.blindspotTimer = 0;
+        G.karkas.officeTimer = 0;
+        playSound('error');
+      }
+    }
+  }
+
+  // Bonnie tick (4.97s cadence)
   if (G.karkas.retreatCooldown > 0) {
     G.karkas.retreatCooldown -= dt;
   }
@@ -2137,28 +1866,53 @@ function update(dt) {
         }
         moved = true;
       } else if (G.karkas.pos === 7) {
-        // AT DOOR BLINDSPOT (Governed strictly by Movement Opportunity!)
         if (G.doorLeftClosed) {
-          // Door is closed: Bonnie retreats quietly! NO loud metallic pounding sound!
-          G.karkas.pos = (Math.random() < 0.6) ? 2 : 3; // Retreats back to Dining Area or Backstage
-          G.karkas.retreatCooldown = 18.0 + Math.random() * 8.0; // Fair breathing room (18-26s)
+          G.karkas.pos = (Math.random() < 0.6) ? 2 : 3;
+          G.karkas.retreatCooldown = 10.0 + Math.random() * 6.0;
           G.karkas.blindspotTimer = 0;
           moved = true;
         } else {
-          // Door is open: Bonnie enters office!
           G.karkas.inOffice = true;
           G.leftButtonsJammed = true;
+          G.karkas.pos = 0;
+          G.karkas.blindspotTimer = 0;
+          G.karkas.officeTimer = 0;
+          playSound('error');
           moved = true;
         }
       }
 
       if (moved) {
-        G.globalMovementCooldown = 1.2;
+        G.globalMovementCooldown = 1.0;
       }
     }
   }
 
-  // 2. Chica tick (4.98s cadence)
+  // 2. Chica Door Blindspot Linger & Resolution
+  if (G.plague.pos === 7) {
+    G.plague.blindspotTimer = (G.plague.blindspotTimer || 0) + dt;
+    if (G.doorRightClosed) {
+      // Door is closed: Chica retreats after 2.5 to 3.5 seconds
+      if (G.plague.blindspotTimer >= 3.0) {
+        G.plague.pos = (Math.random() < 0.55) ? 4 : 3; // Kitchen or Restrooms
+        G.plague.retreatCooldown = 10.0 + Math.random() * 6.0;
+        G.plague.blindspotTimer = 0;
+        G.globalMovementCooldown = 1.0;
+      }
+    } else {
+      // Door is open:
+      if ((G.monitorOpen && G.plague.blindspotTimer >= 0.8) || G.plague.blindspotTimer >= 3.8) {
+        G.plague.inOffice = true;
+        G.rightButtonsJammed = true;
+        G.plague.pos = 0; // In office
+        G.plague.blindspotTimer = 0;
+        G.plague.officeTimer = 0;
+        playSound('error');
+      }
+    }
+  }
+
+  // Chica tick (4.98s cadence)
   if (G.plague.retreatCooldown > 0) {
     G.plague.retreatCooldown -= dt;
   }
@@ -2218,21 +1972,24 @@ function update(dt) {
         }
         moved = true;
       } else if (G.plague.pos === 7) {
-        // Blindspot resolution
         if (G.doorRightClosed) {
           G.plague.pos = (Math.random() < 0.55) ? 4 : 3;
-          G.plague.retreatCooldown = 18.0 + Math.random() * 8.0;
+          G.plague.retreatCooldown = 10.0 + Math.random() * 6.0;
           G.plague.blindspotTimer = 0;
           moved = true;
         } else {
           G.plague.inOffice = true;
           G.rightButtonsJammed = true;
+          G.plague.pos = 0;
+          G.plague.blindspotTimer = 0;
+          G.plague.officeTimer = 0;
+          playSound('error');
           moved = true;
         }
       }
 
       if (moved) {
-        G.globalMovementCooldown = 1.2;
+        G.globalMovementCooldown = 1.0;
       }
     }
   }
@@ -2253,19 +2010,36 @@ function update(dt) {
     G.maler.stallTimer = 2.0;
   }
 
+  // If Freddy is at CAM 4B corner and right door is closed, don't camp forever
+  if (G.maler.pos === 6) {
+    if (G.doorRightClosed) {
+      G.maler.doorTimer = (G.maler.doorTimer || 0) + dt;
+      if (G.maler.doorTimer >= 3.5) {
+        playSound('door_pound');
+        G.maler.pos = 5; // Retreats back to East Hall CAM 4A
+        G.maler.stallTimer = 12.0;
+        G.maler.doorTimer = 0;
+        G.globalMovementCooldown = 1.0;
+      }
+    } else {
+      G.maler.doorTimer = 0;
+    }
+  }
+
   if (G.maler.tickTimer <= 0) {
     G.maler.tickTimer = 3.02;
     if (!malerCamWatched && G.maler.stallTimer <= 0 && G.maler.level > 0 && checkMovementOpportunity(G.maler.level)) {
       if (G.maler.pos < 6) {
         G.maler.pos++;
         playSound('maler_laugh');
-        G.globalMovementCooldown = 1.2;
+        G.globalMovementCooldown = 1.0;
       } else if (G.maler.pos === 6) {
         if (G.doorRightClosed) {
           playSound('door_pound');
           G.maler.pos = 5;
-          G.maler.stallTimer = 14.0;
-          G.globalMovementCooldown = 1.2;
+          G.maler.stallTimer = 12.0;
+          G.maler.doorTimer = 0;
+          G.globalMovementCooldown = 1.0;
         } else if (!G.monitorOpen) {
           triggerJumpscare('maler', 'Freddy Fazbear (East Hall Corner Infiltration)');
           return;
@@ -2306,7 +2080,7 @@ function update(dt) {
       if (G.doorLeftClosed) {
         playSound('door_pound');
         const drain = (G.dash.drainCount ? 6 : 1);
-        if (!G.infinitePower) G.power = Math.max(0, G.power - drain);
+        G.power = Math.max(0, G.power - drain);
         G.dash.drainCount = (G.dash.drainCount || 0) + 1;
         G.dash.stage = 1;
         G.dash.sprintTimer = 0;
@@ -2544,13 +2318,6 @@ function render() {
     ctx.font = '36px VT323, monospace';
     ctx.fillStyle = hoverBack ? '#ffffff' : '#888888';
     ctx.fillText('<< В ГЛАВНОЕ МЕНЮ', 300, 925);
-
-    if (G.cheatToastTimer > 0) {
-      ctx.font = '36px VT323, monospace';
-      ctx.fillStyle = '#00ff44';
-      ctx.textAlign = 'center';
-      ctx.fillText(G.cheatToastText, 960, 920);
-    }
     return;
   }
 
@@ -2572,8 +2339,8 @@ function render() {
     ctx.fillText('АРХИВ ЭКСТРА / EXTRA MENU — ДОСЬЕ АНИМАТРОНИКОВ', 120, 65);
 
     ctx.font = '24px VT323, monospace';
-    ctx.fillStyle = '#00e5ff';
-    ctx.fillText('[!] ДЕВ-ПАНЕЛЬ И ЧИТ-МЕНЮ ДОСТУПНЫ В САМОЙ НОЧИ ПО КНОПКЕ [🛠️ ЧИТЫ / DEV] ИЛИ КЛАВИШЕ [C]', 120, 102);
+    ctx.fillStyle = '#88aacc';
+    ctx.fillText('Досье аниматроников, звуковой архив и быстрый выбор смен', 120, 102);
 
     const hoverBackExtra = (G.mouseX >= 1520 && G.mouseX <= 1800 && G.mouseY >= 50 && G.mouseY <= 105);
     ctx.fillStyle = hoverBackExtra ? '#282835' : '#121218';
@@ -2627,13 +2394,13 @@ function render() {
 
       ctx.font = '24px VT323, monospace';
       ctx.fillStyle = '#88aacc';
-      ctx.fillText('Выберите любую ночь для мгновенного запуска с каноничными таймингами и ИИ-поведением', 960, 295);
+      ctx.fillText('Выберите любую смену для быстрого запуска', 960, 295);
 
       const nightCardsRow1 = [
-        { night: 1, title: 'СМЕНА 1 / NIGHT 1', subtitle: 'Ознакомительный цикл', desc: 'Малер и Даш неактивны. Каркас и Плейг начинают медленное движение только во второй половине ночи. Идеально для изучения механик офиса.', color: '#44aa88' },
-        { night: 2, title: 'СМЕНА 2 / NIGHT 2', subtitle: 'Умеренная активность', desc: 'Даш начинает выглядывать из Пиратской бухты. Каркас и Плейг блуждают более решительно. Требуется периодическая проверка дверного света.', color: '#4488cc' },
-        { night: 3, title: 'СМЕНА 3 / NIGHT 3', subtitle: 'Сбалансированная охота', desc: 'Малер начинает шевелиться в темноте. Каркас проявляет агрессию слепой зоны, а Фокси готов к первому спринту по западному холлу.', color: '#9977dd' },
-        { night: 4, title: 'СМЕНА 4 / NIGHT 4', subtitle: 'Высокая тактическая угроза', desc: 'Малер активно крадется к правой двери, смеясь при каждом шаге. Плейг часами гремит посудой на кухне. Энергетический менеджмент критичен.', color: '#dd8833' }
+        { night: 1, title: 'СМЕНА 1 / NIGHT 1', subtitle: 'Ознакомительный цикл', desc: 'Фредди и Фокси неактивны. Бонни и Чика начинают медленно бродить ближе к 3 AM. Отличное время освоиться с дверьми и камерами.', color: '#44aa88' },
+        { night: 2, title: 'СМЕНА 2 / NIGHT 2', subtitle: 'Умеренная активность', desc: 'Фокси начинает выглядывать из Пиратской бухты. Бонни и Чика перемещаются чаще. Регулярно проверяйте свет в коридорах.', color: '#4488cc' },
+        { night: 3, title: 'СМЕНА 3 / NIGHT 3', subtitle: 'Сбалансированная охота', desc: 'Фредди начинает красться в темноте. Бонни активно проверяет левую дверь, а Фокси готов выбежать из бухты.', color: '#9977dd' },
+        { night: 4, title: 'СМЕНА 4 / NIGHT 4', subtitle: 'Высокая угроза', desc: 'Фредди смеется при каждом шаге и подкрадывается к правой двери. Чика гремит посудой на кухне. Экономьте энергию!', color: '#dd8833' }
       ];
 
       for (let i = 0; i < 4; i++) {
@@ -2769,7 +2536,7 @@ function render() {
           cadence: '4.97 секунды (активен с 1-й ночи, крайне высокая частота тиков)',
           route: 'CAM 1A (Сцена) -> CAM 1B (Зал) / CAM 5 (Закулисье) -> CAM 2A (Зап. холл) -> CAM 3 (Кладовка) -> CAM 2B (Угол) -> Левая дверь офиса',
           behavior: 'Атакует строго с левого фланга. Обладает нелинейным блужданием: способен возвращаться в обеденный зал или заглядывать в кладовую. Оказавшись у двери (слепая зона), виден в свете дверного прожектора. Если игрок не закроет дверь вовремя, Бонни проникает в офис и необратимо блокирует кнопки двери и света.',
-          tactics: 'Регулярно проверяйте левый дверной свет короткими нажатиями (экономя энергию). При обнаружении Бонни у окна немедленно закрывайте левую дверь — через 1.5 секунды он ударит в дверь и отступит в обеденный зал с 15-секундным кулдауном.'
+          tactics: 'Регулярно проверяйте левый дверной свет короткими нажатиями. При обнаружении Бонни у окна немедленно закройте левую дверь — постояв около 3 секунд у закрытой двери, он развернется и отступит назад.'
         },
         {
           img: images.extra_chica,
@@ -2777,7 +2544,7 @@ function render() {
           cadence: '4.98 секунды (активна с 1-2 ночи, оказывает тяжелое психологическое давление)',
           route: 'CAM 1A (Сцена) -> CAM 1B (Зал) -> CAM 7 (Туалеты) -> CAM 6 (Кухня [Грохот посуды]) -> CAM 4A (Вост. холл) -> CAM 4B (Угол) -> Правая дверь',
           behavior: 'Охотится по правому коридору. Обожает часами задерживаться на кухне (CAM 6), где видеопоток отсутствует, но слышен характерный лязг кастрюль и сковородок. Заглядывает в окно правой двери, вытягивая шею. При задержке игрока проникает в офис и заклинивает правую панель управления.',
-          tactics: 'Ориентируйтесь по звукам: пока на кухне гремит посуда — Чика безобидна. Когда шум стихает, проверьте свет правой двери. Закрывайте дверь при обнаружении в окне, давая ей отступить назад на кухню.'
+          tactics: 'Ориентируйтесь по звукам кухни: пока гремит посуда — Чика там. Если звон стих, проверьте правый свет. Закрывайте дверь при ее появлении в окне — через 3 секунды она уйдет обратно.'
         },
         {
           img: images.extra_foxy,
@@ -2892,17 +2659,6 @@ function render() {
       ctx.fillStyle = '#55ff77';
       ctx.fillText('[КОНТРМЕРЫ И СТРАТЕГИЯ ВЫЖИВАНИЯ]', 780, textY);
       textY = wrapText(selAnim.tactics, 780, textY + 35, 980, 32, '26px VT323, monospace', '#cccccc');
-
-    if (G.cheatToastTimer > 0) {
-      ctx.save();
-      ctx.font = '36px VT323, monospace';
-      ctx.fillStyle = '#00ff44';
-      ctx.textAlign = 'center';
-      ctx.shadowColor = '#00ff44';
-      ctx.shadowBlur = 8;
-      ctx.fillText(G.cheatToastText, 960, 1020);
-      ctx.restore();
-    }
     return;
   }
 
@@ -3201,70 +2957,6 @@ function render() {
       }
     }
 
-    // DEV RADAR CHEAT OVERLAY (Real-time map telemetry)
-    if (G.radarActive) {
-      const posToCam = {
-        maler: { 1: '1A', 2: '1B', 3: '7', 4: '6', 5: '4A', 6: '4B' },
-        karkas: { 1: '1A', 2: '1B', 3: '5', 4: '2A', 5: '3', 6: '2B' },
-        plague: { 1: '1A', 2: '1B', 3: '7', 4: '6', 5: '4A', 6: '4B' }
-      };
-
-      for (const b of camButtons) {
-        let tagOffset = 0;
-        ctx.textAlign = 'left';
-
-        // Freddy Fazbear
-        if (posToCam.maler[G.maler.pos] === b.id) {
-          ctx.fillStyle = '#ffd700';
-          ctx.font = 'bold 20px monospace';
-          ctx.fillText('F', b.x + b.w + 6, b.y + 18 + tagOffset);
-          tagOffset += 18;
-        }
-        // Bonnie
-        if (posToCam.karkas[G.karkas.pos] === b.id) {
-          ctx.fillStyle = '#a080ff';
-          ctx.font = 'bold 20px monospace';
-          ctx.fillText('B', b.x + b.w + 6, b.y + 18 + tagOffset);
-          tagOffset += 18;
-        }
-        // Chica
-        if (posToCam.plague[G.plague.pos] === b.id) {
-          ctx.fillStyle = '#ffff44';
-          ctx.font = 'bold 20px monospace';
-          ctx.fillText('C', b.x + b.w + 6, b.y + 18 + tagOffset);
-          tagOffset += 18;
-        }
-        // Foxy
-        if (b.id === '1C' && G.dash.stage < 4) {
-          ctx.fillStyle = '#ff4444';
-          ctx.font = 'bold 18px monospace';
-          ctx.fillText(`FOXY:S${G.dash.stage}`, b.x + b.w + 6, b.y + 18 + tagOffset);
-        } else if (b.id === '2A' && G.dash.stage === 4) {
-          ctx.fillStyle = '#ff0000';
-          ctx.font = 'bold 18px monospace';
-          ctx.fillText('FOXY:RUN!', b.x + b.w + 6, b.y + 18 + tagOffset);
-        }
-      }
-
-      // Blindspot warnings
-      if (G.karkas.pos === 7) {
-        ctx.fillStyle = 'rgba(255, 0, 0, 0.85)';
-        ctx.fillRect(1320, 1005, 260, 36);
-        ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 22px VT323, monospace';
-        ctx.textAlign = 'center';
-        ctx.fillText('! BONNIE AT LEFT DOOR !', 1450, 1030);
-      }
-      if (G.plague.pos === 7) {
-        ctx.fillStyle = 'rgba(255, 0, 0, 0.85)';
-        ctx.fillRect(1600, 1005, 260, 36);
-        ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 22px VT323, monospace';
-        ctx.textAlign = 'center';
-        ctx.fillText('! CHICA AT RIGHT DOOR !', 1730, 1030);
-      }
-    }
-
     // Camera Room Name Header
     ctx.font = '50px VT323, monospace';
     ctx.fillStyle = '#ffffff';
@@ -3330,7 +3022,7 @@ function render() {
     ctx.textAlign = 'left';
     ctx.font = '48px VT323, monospace';
     ctx.fillStyle = (G.power > 15) ? '#ffffff' : '#ff2222';
-    ctx.fillText('Power left: ' + (G.infinitePower ? '100% [INF]' : Math.ceil(G.power) + '%'), 60, 940);
+    ctx.fillText('Power left: ' + Math.ceil(G.power) + '%', 60, 940);
 
     // Usage: White text label + colored blocks
     ctx.font = '38px VT323, monospace';
@@ -3346,7 +3038,6 @@ function render() {
       ctx.fillRect(usageStartX + i * 22, 966, 16, 26);
     }
 
-    // Bottom Monitor Flip Bar (Authentic FNaF 1 Drop Down Bar, NO TEXT)
     if (!G.blackout) {
       if (images.monitor_bar && images.monitor_bar.complete) {
         ctx.drawImage(images.monitor_bar, 660, 1000, 600, 70);
@@ -3357,311 +3048,6 @@ function render() {
         ctx.fillRect(660, 1000, 600, 70);
         ctx.strokeRect(660, 1000, 600, 70);
       }
-    }
-
-    // IN-NIGHT DEV / CHEAT MENU HUD BUTTON & MODAL
-    const devBtnX = 820, devBtnY = 15, devBtnW = 280, devBtnH = 42;
-    const hoverDevBtn = (G.mouseX >= devBtnX && G.mouseX <= devBtnX + devBtnW && G.mouseY >= devBtnY && G.mouseY <= devBtnY + devBtnH);
-    const anyCheatActive = (G.infinitePower || G.fastNight || G.radarActive);
-
-    ctx.fillStyle = hoverDevBtn ? 'rgba(30, 45, 60, 0.95)' : 'rgba(12, 18, 28, 0.85)';
-    ctx.fillRect(devBtnX, devBtnY, devBtnW, devBtnH);
-    ctx.strokeStyle = anyCheatActive ? '#ff0055' : (hoverDevBtn ? '#00ffff' : '#00aacc');
-    ctx.lineWidth = 2;
-    ctx.strokeRect(devBtnX, devBtnY, devBtnW, devBtnH);
-
-    ctx.font = '24px VT323, monospace';
-    ctx.fillStyle = anyCheatActive ? '#ff3366' : (hoverDevBtn ? '#ffffff' : '#00ddff');
-    ctx.textAlign = 'center';
-    ctx.fillText('🛠️ ЧИТЫ / DEV [C]', devBtnX + devBtnW / 2, devBtnY + 28);
-
-    // IN-NIGHT NEVERLOSE-STYLE CHEAT ENGINE MODAL DRAWER
-    if (G.nightCheatPanelOpen) {
-      // Dark blur backdrop
-      ctx.fillStyle = 'rgba(4, 6, 12, 0.82)';
-      ctx.fillRect(0, 0, 1920, 1080);
-
-      // Modal container (x: 360, y: 90, w: 1200, h: 840)
-      const mx0 = 360, my0 = 90, mw = 1200, mh = 840;
-      ctx.fillStyle = '#080c16';
-      ctx.fillRect(mx0, my0, mw, mh);
-      ctx.strokeStyle = '#00e5ff';
-      ctx.lineWidth = 2;
-      ctx.strokeRect(mx0, my0, mw, mh);
-
-      // Top Header Bar (y: 90..155)
-      ctx.fillStyle = '#0e1526';
-      ctx.fillRect(mx0, my0, mw, 65);
-      ctx.strokeStyle = '#1b2a45';
-      ctx.lineWidth = 1;
-      ctx.strokeRect(mx0, my0, mw, 65);
-
-      // Brand Logo & Subtitle
-      ctx.textAlign = 'left';
-      ctx.font = 'bold 24px Consolas, FnafConsolas, monospace';
-      ctx.fillStyle = '#00e5ff';
-      ctx.fillText('NEVERLOSE.CC', mx0 + 25, my0 + 40);
-
-      ctx.font = '16px Consolas, FnafConsolas, monospace';
-      ctx.fillStyle = '#6e82a0';
-      ctx.fillText('// FNAM KERNEL EXPLOIT (NIGHT ENGINE)', mx0 + 195, my0 + 39);
-
-      // System Telemetry Tags on Right
-      ctx.textAlign = 'right';
-      ctx.font = '16px Consolas, FnafConsolas, monospace';
-      ctx.fillStyle = '#00ff88';
-      ctx.fillText(`● SHIFT: NIGHT ${G.currentNight}`, mx0 + mw - 180, my0 + 28);
-      ctx.fillStyle = '#88bbdd';
-      ctx.fillText(`TIME: ${(G.hour === 0 ? 12 : G.hour)}:00 AM | PWR: ${G.infinitePower ? 'INF' : Math.ceil(G.power) + '%'}`, mx0 + mw - 180, my0 + 50);
-
-      // Top-right Close Button [X]
-      const hoverCloseX = (G.mouseX >= mx0 + mw - 60 && G.mouseX <= mx0 + mw - 20 && G.mouseY >= my0 + 15 && G.mouseY <= my0 + 52);
-      ctx.fillStyle = hoverCloseX ? '#ff2255' : '#1e2638';
-      ctx.fillRect(mx0 + mw - 60, my0 + 15, 40, 37);
-      ctx.strokeStyle = hoverCloseX ? '#ffffff' : '#334460';
-      ctx.lineWidth = 1;
-      ctx.strokeRect(mx0 + mw - 60, my0 + 15, 40, 37);
-      ctx.textAlign = 'center';
-      ctx.font = 'bold 20px Consolas, monospace';
-      ctx.fillStyle = '#ffffff';
-      ctx.fillText('×', mx0 + mw - 40, my0 + 39);
-
-      // Tab Bar (y: 155..215, h = 60)
-      const tabNames = [
-        { id: 0, icon: '🤖', title: 'AIMBOT / A.I.' },
-        { id: 1, icon: '👁️', title: 'VISUALS / ESP' },
-        { id: 2, icon: '⚡', title: 'MISC / SYSTEM' },
-        { id: 3, icon: '💀', title: 'SPAWNS / EXPLOITS' }
-      ];
-
-      for (let t = 0; t < 4; t++) {
-        const item = tabNames[t];
-        const tx = mx0 + 20 + t * 290;
-        const ty = my0 + 75;
-        const tw = 280;
-        const th = 46;
-        const isSel = (G.neverloseTab === t);
-        const isHover = (G.mouseX >= tx && G.mouseX <= tx + tw && G.mouseY >= ty && G.mouseY <= ty + th);
-
-        ctx.fillStyle = isSel ? '#131e33' : (isHover ? '#0f1726' : '#090e18');
-        ctx.fillRect(tx, ty, tw, th);
-        ctx.strokeStyle = isSel ? '#00e5ff' : (isHover ? '#3a4e70' : '#1c283c');
-        ctx.lineWidth = isSel ? 2 : 1;
-        ctx.strokeRect(tx, ty, tw, th);
-
-        if (isSel) {
-          ctx.fillStyle = '#00e5ff';
-          ctx.fillRect(tx, ty + th - 3, tw, 3);
-        }
-
-        ctx.textAlign = 'center';
-        ctx.font = 'bold 18px Consolas, FnafConsolas, monospace';
-        ctx.fillStyle = isSel ? '#ffffff' : (isHover ? '#ccddee' : '#687c98');
-        ctx.fillText(`${item.icon} ${item.title}`, tx + tw / 2, ty + 28);
-      }
-
-      // Groupboxes layout (y: 235..755, h = 520)
-      const gbY = my0 + 135;
-      const gbH = 515;
-      const leftGbX = mx0 + 20, leftGbW = 570;
-      const rightGbX = mx0 + 610, rightGbW = 570;
-
-      function drawNeverloseGroupBox(gx, gy, gw, gh, header) {
-        ctx.fillStyle = '#0b101c';
-        ctx.fillRect(gx, gy, gw, gh);
-        ctx.strokeStyle = '#1a263d';
-        ctx.lineWidth = 1;
-        ctx.strokeRect(gx, gy, gw, gh);
-
-        // Header line
-        ctx.fillStyle = '#0f1728';
-        ctx.fillRect(gx, gy, gw, 36);
-        ctx.strokeStyle = '#1f2e4a';
-        ctx.beginPath();
-        ctx.moveTo(gx, gy + 36);
-        ctx.lineTo(gx + gw, gy + 36);
-        ctx.stroke();
-
-        ctx.textAlign = 'left';
-        ctx.font = 'bold 15px Consolas, FnafConsolas, monospace';
-        ctx.fillStyle = '#00e5ff';
-        ctx.fillText(header, gx + 16, gy + 24);
-      }
-
-      function drawNeverloseToggle(x, y, w, h, label, active) {
-        const hover = (G.mouseX >= x && G.mouseX <= x + w && G.mouseY >= y && G.mouseY <= y + h);
-        ctx.fillStyle = hover ? '#131c2e' : '#0d1320';
-        ctx.fillRect(x, y, w, h);
-        ctx.strokeStyle = active ? '#00e5ff' : (hover ? '#3b4e70' : '#1c283c');
-        ctx.lineWidth = active ? 2 : 1;
-        ctx.strokeRect(x, y, w, h);
-
-        ctx.textAlign = 'left';
-        ctx.font = '16px Consolas, FnafConsolas, monospace';
-        ctx.fillStyle = active ? '#ffffff' : '#99aacc';
-        ctx.fillText(label, x + 16, y + h / 2 + 5);
-
-        // Switch pill
-        const swW = 60, swH = 26;
-        const swX = x + w - swW - 14, swY = y + (h - swH) / 2;
-        ctx.fillStyle = active ? '#00e5ff' : '#182236';
-        ctx.fillRect(swX, swY, swW, swH);
-        ctx.strokeStyle = active ? '#ffffff' : '#2d3e5e';
-        ctx.strokeRect(swX, swY, swW, swH);
-
-        ctx.textAlign = 'center';
-        ctx.font = 'bold 13px Consolas, monospace';
-        ctx.fillStyle = active ? '#000000' : '#778899';
-        ctx.fillText(active ? 'ON' : 'OFF', swX + swW / 2, swY + 18);
-      }
-
-      function drawNeverloseActionBtn(x, y, w, h, label, color) {
-        const hover = (G.mouseX >= x && G.mouseX <= x + w && G.mouseY >= y && G.mouseY <= y + h);
-        ctx.fillStyle = hover ? '#182438' : '#0e1524';
-        ctx.fillRect(x, y, w, h);
-        ctx.strokeStyle = hover ? color : '#243550';
-        ctx.lineWidth = hover ? 2 : 1;
-        ctx.strokeRect(x, y, w, h);
-
-        ctx.textAlign = 'center';
-        ctx.font = 'bold 16px Consolas, FnafConsolas, monospace';
-        ctx.fillStyle = hover ? '#ffffff' : color;
-        ctx.fillText(label, x + w / 2, y + h / 2 + 5);
-      }
-
-      // TAB 0: AIMBOT / A.I. ENGINE
-      if (G.neverloseTab === 0) {
-        drawNeverloseGroupBox(leftGbX, gbY, leftGbW, gbH, 'A.I. CALIBRATION & INDEPENDENT CADENCE');
-
-        const aiRobots = [
-          { name: 'Freddy Fazbear', level: G.maler.level, y: gbY + 55, color: '#c28544' },
-          { name: 'Bonnie', level: G.karkas.level, y: gbY + 125, color: '#6866b8' },
-          { name: 'Chica', level: G.plague.level, y: gbY + 195, color: '#cccc33' },
-          { name: 'Foxy', level: G.dash.level, y: gbY + 265, color: '#c23333' }
-        ];
-
-        for (const bot of aiRobots) {
-          ctx.fillStyle = '#0d1320';
-          ctx.fillRect(leftGbX + 16, bot.y, leftGbW - 32, 54);
-          ctx.strokeStyle = '#1d2a42';
-          ctx.strokeRect(leftGbX + 16, bot.y, leftGbW - 32, 54);
-
-          ctx.textAlign = 'left';
-          ctx.font = 'bold 17px Consolas, FnafConsolas, monospace';
-          ctx.fillStyle = bot.color;
-          ctx.fillText(bot.name, leftGbX + 32, bot.y + 33);
-
-          // Minus Button
-          const hoverM = (G.mouseX >= 780 && G.mouseX <= 830 && G.mouseY >= bot.y + 8 && G.mouseY <= bot.y + 46);
-          ctx.fillStyle = hoverM ? '#26344d' : '#141d2e';
-          ctx.fillRect(780, bot.y + 8, 50, 38);
-          ctx.strokeStyle = hoverM ? '#00e5ff' : '#283852';
-          ctx.strokeRect(780, bot.y + 8, 50, 38);
-          ctx.textAlign = 'center';
-          ctx.font = 'bold 22px Consolas, monospace';
-          ctx.fillStyle = '#ffffff';
-          ctx.fillText('-', 805, bot.y + 33);
-
-          // Level Value
-          ctx.font = 'bold 22px Consolas, monospace';
-          ctx.fillStyle = bot.level === 20 ? '#ff3344' : (bot.level === 0 ? '#00ff88' : '#ffffff');
-          ctx.fillText(bot.level, 840, bot.y + 34);
-
-          // Plus Button
-          const hoverP = (G.mouseX >= 850 && G.mouseX <= 900 && G.mouseY >= bot.y + 8 && G.mouseY <= bot.y + 46);
-          ctx.fillStyle = hoverP ? '#26344d' : '#141d2e';
-          ctx.fillRect(850, bot.y + 8, 50, 38);
-          ctx.strokeStyle = hoverP ? '#00e5ff' : '#283852';
-          ctx.strokeRect(850, bot.y + 8, 50, 38);
-          ctx.textAlign = 'center';
-          ctx.font = 'bold 22px Consolas, monospace';
-          ctx.fillStyle = '#ffffff';
-          ctx.fillText('+', 875, bot.y + 34);
-        }
-
-        ctx.textAlign = 'left';
-        ctx.font = '14px Consolas, FnafConsolas, monospace';
-        ctx.fillStyle = '#556885';
-        ctx.fillText('* AI Opportunity: Roll [1..20] <= Effective_AI (Nerfed < 15)', leftGbX + 20, gbY + 360);
-        ctx.fillText('* Grace timer: 16.0s start | Lockout: 1.2s | Retreat: 18-26s', leftGbX + 20, gbY + 390);
-
-        drawNeverloseGroupBox(rightGbX, gbY, rightGbW, gbH, 'A.I. PRESETS & OVERRIDES');
-        drawNeverloseActionBtn(rightGbX + 20, gbY + 55, rightGbW - 40, 52, '🔥 [ 20 / 20 / 20 / 20 ] NIGHTMARE ALL-MAX', '#ff3344');
-        drawNeverloseActionBtn(rightGbX + 20, gbY + 125, rightGbW - 40, 52, '⚡ [ 10 / 10 / 10 / 10 ] HARD BALANCED PRESET', '#ddaa33');
-        drawNeverloseActionBtn(rightGbX + 20, gbY + 195, rightGbW - 40, 52, '🛡️ [ 00 / 00 / 00 / 00 ] PACIFIST SAFE SANCTUARY', '#00ff88');
-        drawNeverloseActionBtn(rightGbX + 20, gbY + 265, rightGbW - 40, 52, '🛑 RESET ALL ANIMATRONICS TO STAGE / COVE', '#00e5ff');
-      }
-
-      // TAB 1: VISUALS / RADAR ESP
-      if (G.neverloseTab === 1) {
-        drawNeverloseGroupBox(leftGbX, gbY, leftGbW, gbH, 'SURVEILLANCE & ESP OVERLAYS');
-        drawNeverloseToggle(leftGbX + 20, gbY + 55, leftGbW - 40, 54, '📡 RADAR ESP MINIMAP ENTITY OVERLAY', G.radarActive);
-        drawNeverloseToggle(leftGbX + 20, gbY + 125, leftGbW - 40, 54, '🚪 BLINDSPOT WINDOW SENSORS', (G.karkas.pos === 7 || G.plague.pos === 7));
-
-        ctx.textAlign = 'left';
-        ctx.font = '14px Consolas, FnafConsolas, monospace';
-        ctx.fillStyle = '#687c98';
-        ctx.fillText('Telemetry status: Visual highlights on cameras & blinds.', leftGbX + 22, gbY + 215);
-
-        drawNeverloseGroupBox(rightGbX, gbY, rightGbW, gbH, 'PARANORMAL & EASTER EGG TRIGGERS');
-        drawNeverloseActionBtn(rightGbX + 20, gbY + 55, rightGbW - 40, 52, '🎭 TRIGGER "IT\'S ME" PSYCHEDELIC FLASH', '#ff33ff');
-        drawNeverloseActionBtn(rightGbX + 20, gbY + 125, rightGbW - 40, 52, '📰 SPAWN CAM 4B NEWSPAPER CLIPPING', '#00e5ff');
-        drawNeverloseActionBtn(rightGbX + 20, gbY + 195, rightGbW - 40, 52, '🖼️ SPAWN CAM 2B GOLDEN FREDDY POSTER', '#ffd700');
-        drawNeverloseActionBtn(rightGbX + 20, gbY + 265, rightGbW - 40, 52, '💀 SPAWN CAM 2B FREDDY RIPPING HEAD POSTER', '#ff4444');
-      }
-
-      // TAB 2: MISC / SYSTEM
-      if (G.neverloseTab === 2) {
-        drawNeverloseGroupBox(leftGbX, gbY, leftGbW, gbH, 'POWER GENERATOR & HARDWARE');
-        drawNeverloseToggle(leftGbX + 20, gbY + 55, leftGbW - 40, 54, '⚡ INFINITE POWER (100% CONSTANT)', G.infinitePower);
-        drawNeverloseActionBtn(leftGbX + 20, gbY + 125, leftGbW - 40, 52, '🌑 TEST BLACKOUT (DRAIN TO 0% POWER)', '#ff3344');
-        drawNeverloseActionBtn(leftGbX + 20, gbY + 195, leftGbW - 40, 52, '🔋 RECHARGE BATTERY TO 100%', '#00ff88');
-        drawNeverloseActionBtn(leftGbX + 20, gbY + 265, leftGbW - 40, 52, '🔓 UNJAM ALL DOOR & LIGHT BUTTON PANELS', '#00e5ff');
-
-        drawNeverloseGroupBox(rightGbX, gbY, rightGbW, gbH, 'TIMELINE & SHIFT ENGINE');
-        drawNeverloseToggle(rightGbX + 20, gbY + 55, rightGbW - 40, 54, '⏩ FAST NIGHT SPEEDHACK (10x TIME)', G.fastNight);
-        drawNeverloseActionBtn(rightGbX + 20, gbY + 125, rightGbW - 40, 52, '🏆 FAST-FORWARD TO 6:00 AM (INSTANT WIN)', '#00ff88');
-        drawNeverloseActionBtn(rightGbX + 20, gbY + 195, rightGbW - 40, 52, '⏰ SKIP +1 IN-GAME HOUR', '#00e5ff');
-      }
-
-      // TAB 3: SPAWNS / EXPLOITS
-      if (G.neverloseTab === 3) {
-        drawNeverloseGroupBox(leftGbX, gbY, leftGbW, gbH, 'DIRECT ENTITY INJECTION');
-        drawNeverloseActionBtn(leftGbX + 20, gbY + 55, leftGbW - 40, 52, '👻 MATERIALIZE GOLDEN FREDDY IN OFFICE', '#ffd700');
-        drawNeverloseActionBtn(leftGbX + 20, gbY + 125, leftGbW - 40, 52, '🚪 TELEPORT BONNIE TO LEFT DOOR (BLINDSPOT)', '#a080ff');
-        drawNeverloseActionBtn(leftGbX + 20, gbY + 195, leftGbW - 40, 52, '🚪 TELEPORT CHICA TO RIGHT DOOR (BLINDSPOT)', '#ffff44');
-        drawNeverloseActionBtn(leftGbX + 20, gbY + 265, leftGbW - 40, 52, '🏃 FORCE FOXY SPRINT (STAGE 4 RUN)', '#ff3344');
-
-        drawNeverloseGroupBox(rightGbX, gbY, rightGbW, gbH, 'AUDIO STINGERS & MUSIC BOX');
-        drawNeverloseActionBtn(rightGbX + 20, gbY + 55, rightGbW - 40, 52, '🔊 PLAY GOLDEN FREDDY SCREAM (9.35s)', '#ffd700');
-        drawNeverloseActionBtn(rightGbX + 20, gbY + 125, rightGbW - 40, 52, '🎵 PLAY TOREADOR MARCH MUSIC BOX', '#00e5ff');
-        drawNeverloseActionBtn(rightGbX + 20, gbY + 195, rightGbW - 40, 52, '🚪 PLAY METALLIC DOOR POUND SOUND', '#ffffff');
-      }
-
-      // Footer Telemetry Bar (y: 770..830)
-      ctx.fillStyle = '#060a12';
-      ctx.fillRect(mx0 + 20, my0 + mh - 130, mw - 40, 48);
-      ctx.strokeStyle = '#1b263b';
-      ctx.lineWidth = 1;
-      ctx.strokeRect(mx0 + 20, my0 + mh - 130, mw - 40, 48);
-
-      ctx.textAlign = 'center';
-      ctx.font = '15px Consolas, FnafConsolas, monospace';
-      ctx.fillStyle = '#00e5ff';
-      ctx.fillText(`ANIMATRONICS: Freddy: CAM ${G.maler.pos} | Bonnie: CAM ${G.karkas.pos} | Chica: CAM ${G.plague.pos} | Foxy: Stage ${G.dash.stage}/4 | Golden Freddy: ${G.entity5.active ? 'IN OFFICE' : 'DORMANT'}`, mx0 + mw / 2, my0 + mh - 100);
-
-      // Bottom Close Bar Button (x: 660, y: 865, w: 600, h: 50)
-      const hoverBottomClose = (G.mouseX >= 660 && G.mouseX <= 1260 && G.mouseY >= 865 && G.mouseY <= 915);
-      ctx.fillStyle = hoverBottomClose ? '#2b101c' : '#140c14';
-      ctx.fillRect(660, 865, 600, 50);
-      ctx.strokeStyle = hoverBottomClose ? '#ff3366' : '#701b2e';
-      ctx.lineWidth = 2;
-      ctx.strokeRect(660, 865, 600, 50);
-
-      ctx.textAlign = 'center';
-      ctx.font = 'bold 18px Consolas, FnafConsolas, monospace';
-      ctx.fillStyle = hoverBottomClose ? '#ffffff' : '#ff4466';
-      ctx.fillText('✕ CLOSE NEVERLOSE MENU [ESC / C]', 960, 897);
     }
   }
 }
