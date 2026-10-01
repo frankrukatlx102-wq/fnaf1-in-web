@@ -65,10 +65,12 @@ The web engine is split into clean, modular components inside `src/`:
   - **`src/render.js`**: Complete Canvas 2D render loop (office, camera feeds, scanlines, menus, Custom Night, Extra dossiers, and jumpscares).
   - **`src/game.js`**: Shift lifecycles, mouse/keyboard input event handling, and main `requestAnimationFrame` update loop.
 - **`game.json`**: The GDevelop 5 project file. You can import this into GDevelop to inspect scene structures or export desktop builds.
+- **`download_hd_assets.py`**: Asset downloader and converter. Sourced from public game preservation repositories of the same format and structure, converting audio to low-latency OGG and WAV formats via ffmpeg.
+- **`generate_fnaf.py`**: Automated generator that builds the complete 1920x1080 GDevelop 5 project (`game.json` and modular event files).
 - **`server.py`**: Local Python HTTP server providing asset delivery and save synchronization.
 - **`manage_save.py`**: CLI utility for inspecting, resetting, or verifying save data envelopes.
 - **`preview.sh` / `gdevelop.sh`**: Linux helper launcher scripts.
-- **`launch_web.bat` / `launch_gdevelop.bat`**: Windows helper launcher scripts.
+- **`launch_web.bat` / `launch_gdevelop.bat`**: Windows helper launcher scripts (`web.bat` and `gdevelop.bat` provide quick aliases).
 - **`IMPORTANT.md`**: Credits and legal copyright notice.
 - **`MOVEMENT.md`**: Breakdown of AI tick intervals and movement probability.
 - **`LICENSE`**: GNU General Public License v3.0 (GPLv3).

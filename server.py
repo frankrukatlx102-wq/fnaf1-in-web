@@ -58,11 +58,8 @@ class FazbearRequestHandler(SimpleHTTPRequestHandler):
 def run_server():
     server_address = ('', PORT)
     httpd = HTTPServer(server_address, FazbearRequestHandler)
-    print(f"==========================================================")
-    print(f"  FIVE NIGHTS AT FREDDY'S - HTTP PREVIEW SERVER           ")
-    print(f"  Listening on: http://localhost:{PORT}/                 ")
-    print(f"  Save Data Sync: ACTIVE (.savedata)                      ")
-    print(f"==========================================================")
+    print(f"Five Nights at Freddy's preview server running on http://localhost:{PORT}/")
+    print(f"Save synchronization active (.savedata)")
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:

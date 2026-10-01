@@ -45,9 +45,8 @@ function checkMovementOpportunity(level) {
   if (G.initialGraceTimer > 0) return false;
   if (G.globalMovementCooldown > 0) return false;
 
-  const effectiveLevel = (level < 15) ? Math.max(1, Math.round(level * 0.70)) : level;
   const roll = Math.floor(Math.random() * 20) + 1;
-  return roll <= effectiveLevel;
+  return roll <= level;
 }
 ```
 

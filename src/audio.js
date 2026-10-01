@@ -1,6 +1,6 @@
 /**
- * Five Nights at Freddy's - Audio Engine
- * Handles sound preloading, looping streams, positional sound effects, and phone calls.
+ * Audio engine for Five Nights at Freddy's.
+ * Preloads sound effects, ambience loops, Phone Guy calls, and music box streams.
  */
 
 const sounds = {};
@@ -14,16 +14,14 @@ const soundFiles = {
   lights_hum: 'assets/audio/lights_on.ogg',
   windowscare: 'assets/audio/windowscare.ogg',
   door_pound: 'assets/audio/door_pound.ogg',
-  foxy_sprint: 'assets/audio/dash_sprint.ogg',
-  dash_sprint: 'assets/audio/dash_sprint.ogg',
+  foxy_sprint: 'assets/audio/foxy_sprint.ogg',
   music_box: 'assets/audio/music_box.ogg',
-  freddy_laugh: 'assets/audio/maler_laugh.ogg',
-  maler_laugh: 'assets/audio/maler_laugh.ogg',
-  foxy_song: 'assets/audio/dash_pirate_song.ogg',
-  dash_song: 'assets/audio/dash_pirate_song.ogg',
+  freddy_laugh: 'assets/audio/freddy_laugh.ogg',
+  foxy_song: 'assets/audio/foxy_pirate_song.ogg',
   screamer: 'assets/audio/jumpscare_screamer.ogg',
   kitchen_rattle: 'assets/audio/kitchen_rattle.ogg',
   powerdown: 'assets/audio/powerdown.ogg',
+  footsteps: 'assets/audio/footsteps.ogg',
   win: 'assets/audio/win_chime_cheer.ogg',
   freddy_nose: 'assets/audio/freddy_nose.ogg',
   phone_guy_1: 'assets/audio/phone_guy_night1.ogg',
@@ -80,10 +78,6 @@ function stopAllShiftSounds() {
   if (sounds.foxy_sprint) {
     sounds.foxy_sprint.pause();
     sounds.foxy_sprint.currentTime = 0;
-  }
-  if (sounds.dash_sprint) {
-    sounds.dash_sprint.pause();
-    sounds.dash_sprint.currentTime = 0;
   }
 
   for (let i = 1; i <= 5; i++) {

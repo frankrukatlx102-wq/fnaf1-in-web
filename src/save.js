@@ -145,7 +145,7 @@ function verifySaveEnvelope(saveStr) {
 const verifyVaultSave = verifySaveEnvelope;
 
 function loadGameSave() {
-  const stored = localStorage.getItem("fnaf_save_data") || localStorage.getItem("fnam_secure_save");
+  const stored = localStorage.getItem("fnaf_save_data");
   if (!stored) {
     saveGameProgress(1, 0, false);
     return { night: 1, stars: 0, customUnlocked: false };
@@ -165,7 +165,6 @@ function loadGameSave() {
 function saveGameProgress(night, stars, customUnlocked) {
   const envelope = createSaveEnvelope(night, stars, customUnlocked);
   localStorage.setItem("fnaf_save_data", envelope);
-  localStorage.setItem("fnam_secure_save", envelope);
 
   try {
     fetch('/api/save', {
@@ -186,7 +185,6 @@ function syncBackendSave() {
           const localData = G.saveData;
           if (v.data.night > localData.night || v.data.stars > localData.stars) {
             localStorage.setItem("fnaf_save_data", txt);
-            localStorage.setItem("fnam_secure_save", txt);
             G.saveData = v.data;
             G.currentNight = v.data.night;
           }

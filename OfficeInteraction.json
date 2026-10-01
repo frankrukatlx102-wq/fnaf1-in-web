@@ -259,7 +259,7 @@
             "value": "VarGlobal"
           },
           "parameters": [
-            "Karkas_Pos",
+            "Bonnie_Pos",
             "!=",
             "6"
           ]
@@ -305,7 +305,7 @@
             "value": "VarGlobal"
           },
           "parameters": [
-            "Karkas_Pos",
+            "Bonnie_Pos",
             "=",
             "6"
           ]
@@ -318,7 +318,7 @@
           },
           "parameters": [
             "OfficeBackground",
-            "\"LeftLight_Karkas\""
+            "\"LeftLight_Bonnie\""
           ]
         }
       ]
@@ -351,7 +351,7 @@
             "value": "VarGlobal"
           },
           "parameters": [
-            "Plague_Pos",
+            "Chica_Pos",
             "!=",
             "7"
           ]
@@ -397,7 +397,7 @@
             "value": "VarGlobal"
           },
           "parameters": [
-            "Plague_Pos",
+            "Chica_Pos",
             "=",
             "7"
           ]
@@ -410,7 +410,7 @@
           },
           "parameters": [
             "OfficeBackground",
-            "\"RightLight_Plague\""
+            "\"RightLight_Chica\""
           ]
         }
       ]
@@ -801,7 +801,7 @@
             "value": "ModVarGlobal"
           },
           "parameters": [
-            "Entity5_InOffice",
+            "GoldenFreddy_InOffice",
             "=",
             "0"
           ]

@@ -136,25 +136,16 @@ def main():
     with open(args.output, "r") as f:
         content = f.read()
 
-    valid, reason, data = verify_save_data(content)
     if valid:
-        print("==================================================")
-        print("       FAZBEAR SAVE: INTEGRITY VERIFIED           ")
-        print("==================================================")
-        print(f"Status:             AUTHENTIC & VALID")
-        print(f"Current Night:      {data.get('night')}")
-        print(f"Stars:              {data.get('stars')} ★")
-        print(f"Custom Night:       {'UNLOCKED' if data.get('customUnlocked') else 'LOCKED'}")
-        print(f"Timestamp:          {data.get('timestamp')}")
-        print("==================================================")
+        print(f"Fazbear Save: Verified authentic")
+        print(f"Current Night: {data.get('night')}")
+        print(f"Stars: {data.get('stars')} ★")
+        print(f"Custom Night: {'Unlocked' if data.get('customUnlocked') else 'Locked'}")
+        print(f"Timestamp: {data.get('timestamp')}")
     else:
-        print("==================================================")
-        print("       INTEGRITY ALERT: CORRUPTED DATA!           ")
-        print("==================================================")
-        print(f"Status:             CORRUPTED / INVALID")
-        print(f"Failure Reason:     {reason}")
-        print("Action:             File discarded or reset recommended.")
-        print("==================================================")
+        print(f"Integrity alert: Save data invalid or corrupted")
+        print(f"Reason: {reason}")
+        print("Reset recommended.")
         sys.exit(1)
 
 if __name__ == "__main__":

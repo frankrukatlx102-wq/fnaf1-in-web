@@ -1,6 +1,6 @@
 /**
- * Five Nights at Freddy's - Office & Infrastructure Mechanics
- * Controls office camera panning, door states, lights, power drain, blackout stages, and camera feeds.
+ * Office mechanics, camera feeds, infrastructure power consumption,
+ * and three-stage blackout sequence for Five Nights at Freddy's.
  */
 
 function triggerHallucinationFlash() {
@@ -24,7 +24,7 @@ function toggleMonitor() {
     G.tabletFrame = 1;
     playSound('cam_up');
 
-    // Flipping tablet up banishes Golden Freddy
+    // Lifting monitor dispels Golden Freddy
     if (G.goldenFreddy.active) {
       G.goldenFreddy.active = false;
       G.goldenFreddy.timer = 0;
@@ -45,7 +45,7 @@ function toggleMonitor() {
       playSound('kitchen_rattle');
     }
 
-    // Check office infiltration if door open while animatronic is in blindspot
+    // Entering the office if the door is left open
     if (G.bonnie.pos === 7 && !G.doorLeftClosed) {
       G.bonnie.inOffice = true;
       G.leftButtonsJammed = true;
@@ -61,17 +61,16 @@ function toggleMonitor() {
     playSound('cam_down');
     if (sounds.kitchen_rattle) sounds.kitchen_rattle.pause();
 
-    // If animatronic infiltrated office earlier, lowering monitor triggers jumpscare
+    // Infiltrated animatronics attack when lowering the monitor
     if (G.bonnie.inOffice) {
-      triggerJumpscare('bonnie', 'Bonnie (Infiltrated Office)');
+      triggerJumpscare('bonnie', 'Bonnie');
       return;
     }
     if (G.chica.inOffice) {
-      triggerJumpscare('chica', 'Chica (Infiltrated Office)');
+      triggerJumpscare('chica', 'Chica');
       return;
     }
 
-    // Golden Freddy rare spawn or poster trigger
     if (G.cam2bPoster === 'golden' || G.cam2bGoldenPoster || (G.currentNight >= 5 && Math.random() < 0.001)) {
       G.goldenFreddy.active = true;
       G.goldenFreddy.timer = 0;
@@ -130,6 +129,31 @@ function updateDoorAnimations(dt) {
   }
 }
 
+function startBlackout() {
+  G.power = 0;
+  G.blackout = true;
+  G.blackoutStage = 1;
+  G.blackoutStageTimer = 0;
+
+  // Authentic randomized durations for all 3 distinct stages
+  G.blackoutStage1Duration = 3.0 + Math.random() * 8.0;   // 3 to 11 seconds of silence & pitch black
+  G.blackoutStage2Duration = 6.0 + Math.random() * 12.0;  // 6 to 18 seconds of Toreador March & flickering eyes
+  G.blackoutStage3Duration = 2.0 + Math.random() * 6.0;   // 2 to 8 seconds of pitch black & footsteps before attack
+
+  G.blackoutFreddyFlickerTimer = 0;
+  G.blackoutFreddyFlickerState = 0;
+
+  G.doorLeftClosed = false;
+  G.doorRightClosed = false;
+  G.lightLeftOn = false;
+  G.lightRightOn = false;
+  G.tabletState = 'closed';
+  G.monitorOpen = false;
+
+  stopAllShiftSounds();
+  playSound('powerdown');
+}
+
 function updatePowerAndBlackout(dt) {
   if (!G.blackout) {
     G.usage = 1 +
@@ -141,86 +165,46 @@ function updatePowerAndBlackout(dt) {
 
     G.power -= 0.1 * G.usage * dt;
     if (G.power <= 0) {
-      G.power = 0;
-      G.blackout = true;
-      G.blackoutStage = 1;
-      G.blackoutStageTimer = 0;
-      G.blackoutCheckTimer = 0;
-      G.blackoutFreddyFlickerTimer = 0;
-      G.blackoutFreddyFlickerState = 0;
-      G.doorLeftClosed = false;
-      G.doorRightClosed = false;
-      G.lightLeftOn = false;
-      G.lightRightOn = false;
-      G.tabletState = 'closed';
-      G.monitorOpen = false;
-      stopAllShiftSounds();
-      playSound('powerdown');
+      startBlackout();
     }
   } else {
-    // 3-Stage Blackout Protocol
+    // Guaranteed 3 sequential stages of variable length
     G.blackoutStageTimer += dt;
-    G.blackoutCheckTimer += dt;
 
     if (G.blackoutStage === 1) {
-      // Stage 1: Pitch black darkness. Every 5s, 20% roll to advance to Stage 2 (or max 20s)
-      if (G.blackoutCheckTimer >= 5.0) {
-        G.blackoutCheckTimer = 0;
-        if (Math.random() < 0.20 || G.blackoutStageTimer >= 20.0) {
-          G.blackoutStage = 2;
-          G.blackoutStageTimer = 0;
-          G.blackoutCheckTimer = 0;
-          if (sounds.toreador_march) {
-            sounds.toreador_march.currentTime = 0;
-            sounds.toreador_march.play().catch(() => {});
-          }
-        }
-      } else if (G.blackoutStageTimer >= 20.0) {
+      // Stage 1: Pitch black darkness and silence
+      if (G.blackoutStageTimer >= G.blackoutStage1Duration) {
         G.blackoutStage = 2;
         G.blackoutStageTimer = 0;
-        G.blackoutCheckTimer = 0;
+        G.blackoutFreddyFlickerTimer = 0;
+        G.blackoutFreddyFlickerState = 0;
         if (sounds.toreador_march) {
           sounds.toreador_march.currentTime = 0;
           sounds.toreador_march.play().catch(() => {});
         }
       }
     } else if (G.blackoutStage === 2) {
-      // Stage 2: Toreador March music box + Freddy face flickering in left doorway
+      // Stage 2: Toreador March music box with Freddy's face flickering in the left doorway
       G.blackoutFreddyFlickerTimer += dt;
-      if (G.blackoutFreddyFlickerTimer >= 0.18) {
+      if (G.blackoutFreddyFlickerTimer >= 0.16) {
         G.blackoutFreddyFlickerTimer = 0;
         const rnd = Math.random();
         G.blackoutFreddyFlickerState = (rnd < 0.45) ? 0 : ((rnd < 0.75) ? 1 : 2);
       }
 
-      if (G.blackoutCheckTimer >= 5.0) {
-        G.blackoutCheckTimer = 0;
-        if (Math.random() < 0.20 || G.blackoutStageTimer >= 20.0) {
-          G.blackoutStage = 3;
-          G.blackoutStageTimer = 0;
-          G.blackoutCheckTimer = 0;
-          if (sounds.toreador_march) sounds.toreador_march.pause();
-          playSound('metallic_footsteps');
-        }
-      } else if (G.blackoutStageTimer >= 20.0) {
+      if (G.blackoutStageTimer >= G.blackoutStage2Duration) {
         G.blackoutStage = 3;
         G.blackoutStageTimer = 0;
-        G.blackoutCheckTimer = 0;
-        if (sounds.toreador_march) sounds.toreador_march.pause();
-        playSound('metallic_footsteps');
+        if (sounds.toreador_march) {
+          sounds.toreador_march.pause();
+        }
+        playSound('footsteps');
       }
     } else if (G.blackoutStage === 3) {
-      // Stage 3: Footsteps in darkness. Every 2s, 20% roll to jumpscare (or max 20s)
-      if (G.blackoutCheckTimer >= 2.0) {
-        G.blackoutCheckTimer = 0;
-        if (Math.random() < 0.20 || G.blackoutStageTimer >= 20.0) {
-          if (sounds.toreador_march) sounds.toreador_march.pause();
-          triggerJumpscare('freddy_blackout', 'Freddy Fazbear (Blackout Power Loss)');
-          return;
-        }
-      } else if (G.blackoutStageTimer >= 20.0) {
+      // Stage 3: Abrupt cut of music, footsteps in complete darkness
+      if (G.blackoutStageTimer >= G.blackoutStage3Duration) {
         if (sounds.toreador_march) sounds.toreador_march.pause();
-        triggerJumpscare('freddy_blackout', 'Freddy Fazbear (Blackout Power Loss)');
+        triggerJumpscare('freddy_blackout', 'Freddy Fazbear');
         return;
       }
     }
@@ -301,7 +285,7 @@ function getCameraFeedImage() {
     if (G.foxy.stage === 4) {
       if (G.foxy.sprintTimer < 1.6) {
         const idx = Math.min(7, Math.floor((G.foxy.sprintTimer / 1.6) * 8));
-        return images['foxy_run_' + idx] || images['dash_run_' + idx];
+        return images['foxy_run_' + idx];
       }
       return images['west_hall'];
     }
@@ -363,7 +347,7 @@ function getCameraFeedImage() {
     return images['backstage'];
   }
 
-  // CAM 6: Kitchen (Audio Only)
+  // CAM 6: Kitchen
   if (cam === '6') {
     return images['cam_6_kitchen'];
   }

@@ -681,7 +681,7 @@
             "value": "VarGlobal"
           },
           "parameters": [
-            "Dash_Stage",
+            "Foxy_Stage",
             "=",
             "4"
           ]
@@ -694,7 +694,7 @@
           },
           "parameters": [
             "CameraFeed",
-            "\"2A_DashSprint\""
+            "\"2A_FoxySprint\""
           ]
         }
       ]
@@ -717,7 +717,7 @@
             "value": "VarGlobal"
           },
           "parameters": [
-            "Dash_Stage",
+            "Foxy_Stage",
             "!=",
             "4"
           ]
@@ -753,7 +753,7 @@
             "value": "VarGlobal"
           },
           "parameters": [
-            "Karkas_Pos",
+            "Bonnie_Pos",
             "=",
             "1"
           ]
@@ -763,7 +763,7 @@
             "value": "VarGlobal"
           },
           "parameters": [
-            "Plague_Pos",
+            "Chica_Pos",
             "=",
             "1"
           ]
@@ -773,7 +773,7 @@
             "value": "VarGlobal"
           },
           "parameters": [
-            "Maler_Pos",
+            "Freddy_Pos",
             "=",
             "1"
           ]
@@ -809,7 +809,7 @@
             "value": "VarGlobal"
           },
           "parameters": [
-            "Karkas_Pos",
+            "Bonnie_Pos",
             "!=",
             "1"
           ]
@@ -819,7 +819,7 @@
             "value": "VarGlobal"
           },
           "parameters": [
-            "Plague_Pos",
+            "Chica_Pos",
             "=",
             "1"
           ]
@@ -829,7 +829,7 @@
             "value": "VarGlobal"
           },
           "parameters": [
-            "Maler_Pos",
+            "Freddy_Pos",
             "=",
             "1"
           ]
@@ -865,7 +865,7 @@
             "value": "VarGlobal"
           },
           "parameters": [
-            "Karkas_Pos",
+            "Bonnie_Pos",
             "=",
             "1"
           ]
@@ -875,7 +875,7 @@
             "value": "VarGlobal"
           },
           "parameters": [
-            "Plague_Pos",
+            "Chica_Pos",
             "!=",
             "1"
           ]
@@ -885,7 +885,7 @@
             "value": "VarGlobal"
           },
           "parameters": [
-            "Maler_Pos",
+            "Freddy_Pos",
             "=",
             "1"
           ]
@@ -921,7 +921,7 @@
             "value": "VarGlobal"
           },
           "parameters": [
-            "Karkas_Pos",
+            "Bonnie_Pos",
             "!=",
             "1"
           ]
@@ -931,7 +931,7 @@
             "value": "VarGlobal"
           },
           "parameters": [
-            "Plague_Pos",
+            "Chica_Pos",
             "!=",
             "1"
           ]
@@ -941,7 +941,7 @@
             "value": "VarGlobal"
           },
           "parameters": [
-            "Maler_Pos",
+            "Freddy_Pos",
             "=",
             "1"
           ]
@@ -977,7 +977,7 @@
             "value": "VarGlobal"
           },
           "parameters": [
-            "Maler_Pos",
+            "Freddy_Pos",
             "!=",
             "1"
           ]
@@ -1013,7 +1013,7 @@
             "value": "VarGlobal"
           },
           "parameters": [
-            "Karkas_Pos",
+            "Bonnie_Pos",
             "=",
             "6"
           ]
@@ -1049,7 +1049,7 @@
             "value": "VarGlobal"
           },
           "parameters": [
-            "Karkas_Pos",
+            "Bonnie_Pos",
             "!=",
             "6"
           ]
@@ -1085,7 +1085,7 @@
             "value": "VarGlobal"
           },
           "parameters": [
-            "Plague_Pos",
+            "Chica_Pos",
             "=",
             "6"
           ]
@@ -1121,7 +1121,7 @@
             "value": "VarGlobal"
           },
           "parameters": [
-            "Maler_Pos",
+            "Freddy_Pos",
             "=",
             "6"
           ]
@@ -1157,7 +1157,7 @@
             "value": "VarGlobal"
           },
           "parameters": [
-            "Plague_Pos",
+            "Chica_Pos",
             "!=",
             "6"
           ]
@@ -1167,7 +1167,7 @@
             "value": "VarGlobal"
           },
           "parameters": [
-            "Maler_Pos",
+            "Freddy_Pos",
             "!=",
             "6"
           ]
@@ -1203,7 +1203,7 @@
             "value": "VarGlobal"
           },
           "parameters": [
-            "Karkas_Pos",
+            "Bonnie_Pos",
             "=",
             "3"
           ]
@@ -1239,7 +1239,7 @@
             "value": "VarGlobal"
           },
           "parameters": [
-            "Karkas_Pos",
+            "Bonnie_Pos",
             "!=",
             "3"
           ]

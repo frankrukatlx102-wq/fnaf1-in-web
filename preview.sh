@@ -3,12 +3,9 @@
 cd "$(dirname "$0")"
 
 PORT=8080
-echo "=========================================================="
-echo "    FIVE NIGHTS AT FREDDY'S (FNaF 1 HD Engine Build)      "
-echo "=========================================================="
-echo ""
-echo "[1] GDevelop Project File:  $(pwd)/game.json"
-echo "[2] HTML5 Preview:          http://localhost:$PORT/"
+echo "Five Nights at Freddy's (FNaF 1 HD Engine Build)"
+echo "GDevelop Project File: $(pwd)/game.json"
+echo "HTML5 Preview:         http://localhost:$PORT/"
 echo ""
 
 if [ "$1" == "--gdevelop" ] || [ "$1" == "-g" ]; then
@@ -20,7 +17,6 @@ fi
 echo "Starting local preview server on port $PORT..."
 echo "Press Ctrl+C to stop the preview server."
 
-# Try opening default browser in background if xdg-open exists
 if which xdg-open >/dev/null 2>&1; then
     (sleep 1 && xdg-open "http://localhost:$PORT/") &
 fi

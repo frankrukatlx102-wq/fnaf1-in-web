@@ -441,7 +441,7 @@
             "value": "ModVarGlobal"
           },
           "parameters": [
-            "Karkas_Level",
+            "Bonnie_Level",
             "+",
             "1"
           ]
@@ -451,7 +451,7 @@
             "value": "ModVarGlobal"
           },
           "parameters": [
-            "Plague_Level",
+            "Chica_Level",
             "+",
             "1"
           ]
@@ -516,7 +516,7 @@
             "value": "ModVarGlobal"
           },
           "parameters": [
-            "Dash_Level",
+            "Foxy_Level",
             "+",
             "1"
           ]
@@ -581,7 +581,7 @@
             "value": "ModVarGlobal"
           },
           "parameters": [
-            "Maler_Level",
+            "Freddy_Level",
             "=",
             "1"
           ]
@@ -591,7 +591,7 @@
             "value": "ModVarGlobal"
           },
           "parameters": [
-            "Karkas_Level",
+            "Bonnie_Level",
             "+",
             "1"
           ]
@@ -656,7 +656,7 @@
             "value": "ModVarGlobal"
           },
           "parameters": [
-            "Maler_Level",
+            "Freddy_Level",
             "+",
             "1"
           ]
@@ -1043,7 +1043,7 @@
           },
           "parameters": [
             "OfficeBackground",
-            "\"MalerEyes\""
+            "\"FreddyEyes\""
           ]
         },
         {
@@ -1119,7 +1119,7 @@
             "value": "SetAnimationName"
           },
           "parameters": [
-            "MalerJumpscare",
+            "FreddyJumpscare",
             "\"Blackout\""
           ]
         },

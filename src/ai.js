@@ -1,7 +1,6 @@
 /**
- * Five Nights at Freddy's - Animatronic AI System
- * Implements Scott Cawthon's movement opportunity checks, hourly difficulty scaling,
- * camera stalling, blindspot window lingering, and fair retreat timeouts.
+ * Animatronic artificial intelligence and movement opportunity engine.
+ * Follows classic FNaF 1 tick cadences and movement opportunity rules.
  */
 
 function checkMovementOpportunity(level) {
@@ -9,10 +8,8 @@ function checkMovementOpportunity(level) {
   if (G.initialGraceTimer > 0) return false;
   if (G.globalMovementCooldown > 0) return false;
 
-  // Gentle difficulty curve for lower AI levels to prevent early rush
-  const effectiveLevel = (level < 15) ? Math.max(1, Math.round(level * 0.70)) : level;
   const roll = Math.floor(Math.random() * 20) + 1;
-  return roll <= effectiveLevel;
+  return roll <= level;
 }
 
 function updateAILevelsForHour() {
@@ -20,7 +17,6 @@ function updateAILevelsForHour() {
   const h = G.hour;
 
   if (n === 7) {
-    // Custom Night (values set in custom AI menu)
     G.freddy.level = G.customAI.freddy;
     G.bonnie.level = G.customAI.bonnie;
     G.chica.level  = G.customAI.chica;
@@ -62,7 +58,7 @@ function updateAILevelsForHour() {
     G.bonnie.level = (h >= 4) ? 7 : (h >= 3 ? 6 : 5);
     G.chica.level  = (h >= 4) ? 7 : (h >= 3 ? 6 : 5);
   } else {
-    // Night 6 (Nightmare)
+    // Night 6
     G.freddy.level = (h >= 4) ? 5 : (h >= 2 ? 4 : 3);
     G.foxy.level   = (h >= 4) ? 7 : (h >= 2 ? 6 : 5);
     G.bonnie.level = (h >= 4) ? 9 : (h >= 2 ? 7 : 6);
@@ -71,7 +67,6 @@ function updateAILevelsForHour() {
 }
 
 function updateAnimatronicsAI(dt) {
-  // Global cooldown and initial grace period
   if (G.globalMovementCooldown > 0) {
     G.globalMovementCooldown -= dt;
   }
@@ -79,22 +74,44 @@ function updateAnimatronicsAI(dt) {
     G.initialGraceTimer -= dt;
   }
 
-  // ---------------------------------------------------------------------------
-  // 1. BONNIE THE BUNNY (Left Hallway & Door Blindspot)
-  // ---------------------------------------------------------------------------
+  // Bonnie the Bunny
+  // West Hall Corner (CAM 2B) and Left Door Blindspot
+  if (G.bonnie.pos === 6) {
+    // Bonnie is in the corner right outside the door
+    if (G.doorLeftClosed) {
+      G.bonnie.doorTimer = (G.bonnie.doorTimer || 0) + dt;
+      if (G.bonnie.doorTimer >= 2.5) {
+        // Door is closed, Bonnie retreats back down the hallway
+        G.bonnie.pos = (Math.random() < 0.6) ? 2 : 3;
+        G.bonnie.retreatCooldown = 8.0 + Math.random() * 5.0;
+        G.bonnie.doorTimer = 0;
+        G.globalMovementCooldown = 1.0;
+      }
+    } else {
+      G.bonnie.doorTimer = (G.bonnie.doorTimer || 0) + dt;
+      if (G.bonnie.doorTimer >= 2.0) {
+        // Door is open, step into blindspot
+        G.bonnie.pos = 7;
+        G.bonnie.blindspotTimer = 0;
+        G.bonnie.doorTimer = 0;
+        if (G.lightLeftOn) playSound('windowscare');
+      }
+    }
+  }
+
   if (G.bonnie.pos === 7) {
     G.bonnie.blindspotTimer = (G.bonnie.blindspotTimer || 0) + dt;
     if (G.doorLeftClosed) {
-      // Door closed: Bonnie lingers 2.5-3.5s then retreats back down the hall
-      if (G.bonnie.blindspotTimer >= 3.0) {
-        G.bonnie.pos = (Math.random() < 0.60) ? 2 : 3; // Dining Area or Backstage
-        G.bonnie.retreatCooldown = 10.0 + Math.random() * 6.0;
+      // Door was closed while Bonnie is in blindspot, leave promptly
+      if (G.bonnie.blindspotTimer >= 2.2) {
+        G.bonnie.pos = (Math.random() < 0.6) ? 2 : 3;
+        G.bonnie.retreatCooldown = 8.0 + Math.random() * 5.0;
         G.bonnie.blindspotTimer = 0;
         G.globalMovementCooldown = 1.0;
       }
     } else {
-      // Door open: Infiltrates office if monitor is open or player waits too long
-      if ((G.monitorOpen && G.bonnie.blindspotTimer >= 0.8) || G.bonnie.blindspotTimer >= 3.8) {
+      // Door is open: monitor pull-up or hesitation allows entry
+      if ((G.monitorOpen && G.bonnie.blindspotTimer >= 0.5) || G.bonnie.blindspotTimer >= 3.0) {
         G.bonnie.inOffice = true;
         G.leftButtonsJammed = true;
         G.bonnie.pos = 0;
@@ -114,47 +131,39 @@ function updateAnimatronicsAI(dt) {
     if (G.bonnie.level > 0 && G.bonnie.retreatCooldown <= 0 && checkMovementOpportunity(G.bonnie.level)) {
       let moved = false;
       if (G.bonnie.pos === 1) {
-        // Stage -> Dining (65%) or Backstage (35%)
         G.bonnie.pos = (Math.random() < 0.65) ? 2 : 3;
         moved = true;
       } else if (G.bonnie.pos === 2) {
-        // Dining -> Backstage (35%), West Hall (35%), or stays (30%)
         const r = Math.random();
         if (r < 0.35) G.bonnie.pos = 3;
         else if (r < 0.70) G.bonnie.pos = 4;
         moved = true;
       } else if (G.bonnie.pos === 3) {
-        // Backstage -> Dining (70%) or West Hall (30%)
         G.bonnie.pos = (Math.random() < 0.70) ? 2 : 4;
         moved = true;
       } else if (G.bonnie.pos === 4) {
-        // West Hall -> Dining (40%), Supply Closet (35%), Corner (25%)
         const r = Math.random();
         if (r < 0.40) G.bonnie.pos = 2;
         else if (r < 0.75) G.bonnie.pos = 5;
         else G.bonnie.pos = 6;
         moved = true;
       } else if (G.bonnie.pos === 5) {
-        // Supply Closet -> West Hall (60%) or Corner (40%)
         G.bonnie.pos = (Math.random() < 0.60) ? 4 : 6;
         moved = true;
       } else if (G.bonnie.pos === 6) {
-        // Corner -> Wanders back (45%) or advances to Door Blindspot (55%)
-        const r = Math.random();
-        if (r < 0.45) {
-          G.bonnie.pos = (Math.random() < 0.5) ? 4 : 5;
+        if (G.doorLeftClosed) {
+          G.bonnie.pos = (Math.random() < 0.6) ? 2 : 3;
+          G.bonnie.retreatCooldown = 8.0 + Math.random() * 5.0;
         } else {
           G.bonnie.pos = 7;
           G.bonnie.blindspotTimer = 0;
-          if (G.lightLeftOn) {
-            playSound('windowscare');
-          }
+          if (G.lightLeftOn) playSound('windowscare');
         }
         moved = true;
       } else if (G.bonnie.pos === 7) {
         if (G.doorLeftClosed) {
-          G.bonnie.pos = (Math.random() < 0.60) ? 2 : 3;
-          G.bonnie.retreatCooldown = 10.0 + Math.random() * 6.0;
+          G.bonnie.pos = (Math.random() < 0.6) ? 2 : 3;
+          G.bonnie.retreatCooldown = 8.0 + Math.random() * 5.0;
           G.bonnie.blindspotTimer = 0;
           moved = true;
         } else {
@@ -174,20 +183,39 @@ function updateAnimatronicsAI(dt) {
     }
   }
 
-  // ---------------------------------------------------------------------------
-  // 2. CHICA THE CHICKEN (Right Hallway, Kitchen & Door Blindspot)
-  // ---------------------------------------------------------------------------
+  // Chica the Chicken
+  // East Hall Corner (CAM 4B) and Right Door Blindspot
+  if (G.chica.pos === 6) {
+    if (G.doorRightClosed) {
+      G.chica.doorTimer = (G.chica.doorTimer || 0) + dt;
+      if (G.chica.doorTimer >= 2.5) {
+        G.chica.pos = (Math.random() < 0.55) ? 4 : 3;
+        G.chica.retreatCooldown = 8.0 + Math.random() * 5.0;
+        G.chica.doorTimer = 0;
+        G.globalMovementCooldown = 1.0;
+      }
+    } else {
+      G.chica.doorTimer = (G.chica.doorTimer || 0) + dt;
+      if (G.chica.doorTimer >= 2.0) {
+        G.chica.pos = 7;
+        G.chica.blindspotTimer = 0;
+        G.chica.doorTimer = 0;
+        if (G.lightRightOn) playSound('windowscare');
+      }
+    }
+  }
+
   if (G.chica.pos === 7) {
     G.chica.blindspotTimer = (G.chica.blindspotTimer || 0) + dt;
     if (G.doorRightClosed) {
-      if (G.chica.blindspotTimer >= 3.0) {
-        G.chica.pos = (Math.random() < 0.55) ? 4 : 3; // Kitchen or Restrooms
-        G.chica.retreatCooldown = 10.0 + Math.random() * 6.0;
+      if (G.chica.blindspotTimer >= 2.2) {
+        G.chica.pos = (Math.random() < 0.55) ? 4 : 3;
+        G.chica.retreatCooldown = 8.0 + Math.random() * 5.0;
         G.chica.blindspotTimer = 0;
         G.globalMovementCooldown = 1.0;
       }
     } else {
-      if ((G.monitorOpen && G.chica.blindspotTimer >= 0.8) || G.chica.blindspotTimer >= 3.8) {
+      if ((G.monitorOpen && G.chica.blindspotTimer >= 0.5) || G.chica.blindspotTimer >= 3.0) {
         G.chica.inOffice = true;
         G.rightButtonsJammed = true;
         G.chica.pos = 0;
@@ -207,59 +235,46 @@ function updateAnimatronicsAI(dt) {
     if (G.chica.level > 0 && G.chica.retreatCooldown <= 0 && checkMovementOpportunity(G.chica.level)) {
       let moved = false;
       if (G.chica.pos === 1) {
-        // Stage -> Dining
         G.chica.pos = 2;
         moved = true;
       } else if (G.chica.pos === 2) {
-        // Dining -> Kitchen (45%), Restrooms (35%), East Hall (20%)
         const r = Math.random();
         if (r < 0.45) G.chica.pos = 4;
         else if (r < 0.80) G.chica.pos = 3;
         else G.chica.pos = 5;
         moved = true;
       } else if (G.chica.pos === 3) {
-        // Restrooms -> Kitchen (50%), Dining (30%), East Hall (20%)
         const r = Math.random();
         if (r < 0.50) G.chica.pos = 4;
         else if (r < 0.80) G.chica.pos = 2;
         else G.chica.pos = 5;
         moved = true;
       } else if (G.chica.pos === 4) {
-        // Kitchen linger
         const r = Math.random();
-        if (r < 0.55) {
-          // Stays in Kitchen rattling pots
-        } else if (r < 0.80) {
-          G.chica.pos = 5; // East Hall
-          moved = true;
-        } else {
-          G.chica.pos = 3; // Restrooms
+        if (r >= 0.55) {
+          G.chica.pos = (r < 0.80) ? 5 : 3;
           moved = true;
         }
       } else if (G.chica.pos === 5) {
-        // East Hall -> Kitchen (40%), Dining (20%), Corner (40%)
         const r = Math.random();
         if (r < 0.40) G.chica.pos = 4;
         else if (r < 0.60) G.chica.pos = 2;
         else G.chica.pos = 6;
         moved = true;
       } else if (G.chica.pos === 6) {
-        // Corner -> East Hall (45%) or Door Blindspot (55%)
-        const r = Math.random();
-        if (r < 0.45) {
-          G.chica.pos = 5;
+        if (G.doorRightClosed) {
+          G.chica.pos = (Math.random() < 0.55) ? 4 : 3;
+          G.chica.retreatCooldown = 8.0 + Math.random() * 5.0;
         } else {
           G.chica.pos = 7;
           G.chica.blindspotTimer = 0;
-          if (G.lightRightOn) {
-            playSound('windowscare');
-          }
+          if (G.lightRightOn) playSound('windowscare');
         }
         moved = true;
       } else if (G.chica.pos === 7) {
         if (G.doorRightClosed) {
           G.chica.pos = (Math.random() < 0.55) ? 4 : 3;
-          G.chica.retreatCooldown = 10.0 + Math.random() * 6.0;
+          G.chica.retreatCooldown = 8.0 + Math.random() * 5.0;
           G.chica.blindspotTimer = 0;
           moved = true;
         } else {
@@ -279,15 +294,12 @@ function updateAnimatronicsAI(dt) {
     }
   }
 
-  // ---------------------------------------------------------------------------
-  // 3. FREDDY FAZBEAR (Show Stage Leader & Tactical Shadow)
-  // ---------------------------------------------------------------------------
+  // Freddy Fazbear
   G.freddy.tickTimer -= dt;
   if (G.freddy.stallTimer > 0) {
     G.freddy.stallTimer -= dt;
   }
 
-  // Watching Freddy's current room freezes him
   const freddyCamWatched = G.monitorOpen && (
     (G.freddy.pos === 1 && G.selectedCam === '1A') ||
     (G.freddy.pos === 2 && G.selectedCam === '1B') ||
@@ -300,14 +312,13 @@ function updateAnimatronicsAI(dt) {
     G.freddy.stallTimer = 2.0;
   }
 
-  // Door interaction at CAM 4B corner
   if (G.freddy.pos === 6) {
     if (G.doorRightClosed) {
       G.freddy.doorTimer = (G.freddy.doorTimer || 0) + dt;
-      if (G.freddy.doorTimer >= 3.5) {
+      if (G.freddy.doorTimer >= 2.5) {
         playSound('door_pound');
-        G.freddy.pos = 5; // Retreats back to East Hall CAM 4A
-        G.freddy.stallTimer = 12.0;
+        G.freddy.pos = 5;
+        G.freddy.stallTimer = 10.0;
         G.freddy.doorTimer = 0;
         G.globalMovementCooldown = 1.0;
       }
@@ -327,29 +338,26 @@ function updateAnimatronicsAI(dt) {
         if (G.doorRightClosed) {
           playSound('door_pound');
           G.freddy.pos = 5;
-          G.freddy.stallTimer = 12.0;
+          G.freddy.stallTimer = 10.0;
           G.freddy.doorTimer = 0;
           G.globalMovementCooldown = 1.0;
         } else if (!G.monitorOpen) {
-          triggerJumpscare('freddy', 'Freddy Fazbear (East Hall Corner Infiltration)');
+          triggerJumpscare('freddy', 'Freddy Fazbear');
           return;
         }
       }
     }
   }
 
-  // ---------------------------------------------------------------------------
-  // 4. FOXY THE PIRATE (Pirate Cove Sprinter)
-  // ---------------------------------------------------------------------------
+  // Foxy the Pirate
   G.foxy.tickTimer -= dt;
   if (G.foxy.stallTimer > 0) {
     G.foxy.stallTimer -= dt;
   }
 
-  // Viewing monitor stalls Foxy
   if (G.monitorOpen) {
     if (G.selectedCam === '1C') {
-      if (G.foxy.stallTimer < 8.0) G.foxy.stallTimer = 8.0 + Math.random() * 6.0;
+      if (G.foxy.stallTimer < 7.0) G.foxy.stallTimer = 7.0 + Math.random() * 5.0;
     } else {
       if (G.foxy.stallTimer < 1.5) G.foxy.stallTimer = 1.5;
     }
@@ -367,7 +375,7 @@ function updateAnimatronicsAI(dt) {
     }
   }
 
-  // Sprinting down West Hall (3.5s reaction window)
+  // Foxy sprint down West Hall
   if (G.foxy.stage === 4) {
     G.foxy.sprintTimer += dt;
     if (G.foxy.sprintTimer >= 3.5) {
@@ -378,26 +386,26 @@ function updateAnimatronicsAI(dt) {
         G.foxy.drainCount = (G.foxy.drainCount || 0) + 1;
         G.foxy.stage = 1;
         G.foxy.sprintTimer = 0;
-        G.foxy.stallTimer = 16.0;
+        G.foxy.stallTimer = 14.0;
       } else {
-        triggerJumpscare('foxy', 'Foxy (West Hallway Breach)');
+        triggerJumpscare('foxy', 'Foxy');
         return;
       }
     }
   }
 
-  // Infiltration Watchdog (animatronic entered office earlier while monitor was up)
+  // Infiltrated animatronic watchdog
   if (G.bonnie.inOffice) {
     G.bonnie.officeTimer = (G.bonnie.officeTimer || 0) + dt;
-    if (G.bonnie.officeTimer >= 6.0 && G.tabletState === 'closed') {
-      triggerJumpscare('bonnie', 'Bonnie (Infiltrated Office)');
+    if (G.bonnie.officeTimer >= 4.0 && G.tabletState === 'closed') {
+      triggerJumpscare('bonnie', 'Bonnie');
       return;
     }
   }
   if (G.chica.inOffice) {
     G.chica.officeTimer = (G.chica.officeTimer || 0) + dt;
-    if (G.chica.officeTimer >= 6.0 && G.tabletState === 'closed') {
-      triggerJumpscare('chica', 'Chica (Infiltrated Office)');
+    if (G.chica.officeTimer >= 4.0 && G.tabletState === 'closed') {
+      triggerJumpscare('chica', 'Chica');
       return;
     }
   }

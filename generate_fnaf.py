@@ -1,6 +1,6 @@
 import json, os, uuid
 
-PROJECT_DIR = "/home/yurist/five-nights-at-maler"
+PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 SPRITES_DIR = os.path.join(PROJECT_DIR, "assets/sprites")
 AUDIO_DIR = os.path.join(PROJECT_DIR, "assets/audio")
 FONTS_DIR = os.path.join(PROJECT_DIR, "assets/fonts")
@@ -115,11 +115,11 @@ scene_objects = [
     make_sprite("OfficeBackground", [
         {"name": "Default", "frames": ["office_default.png"]},
         {"name": "LeftLight", "frames": ["office_left_light.png"]},
-        {"name": "LeftLight_Karkas", "frames": ["office_karkas_window.png"]},
+        {"name": "LeftLight_Bonnie", "frames": ["office_bonnie_window.png"]},
         {"name": "RightLight", "frames": ["office_right_light.png"]},
-        {"name": "RightLight_Plague", "frames": ["office_plague_window.png"]},
+        {"name": "RightLight_Chica", "frames": ["office_chica_window.png"]},
         {"name": "PowerOut", "frames": ["office_powerout.png"]},
-        {"name": "MalerEyes", "frames": ["office_maler_eyes.png"]}
+        {"name": "FreddyEyes", "frames": ["office_freddy_eyes.png"]}
     ]),
 
     # Animated Office Desk Fan
@@ -158,7 +158,7 @@ scene_objects = [
         {"name": "Both", "frames": ["btn_right_both.png"]}
     ]),
 
-    # Entity 5 (Golden Freddy sitting)
+    # Golden Freddy sitting
     make_sprite("GoldenFreddyOffice", [
         {"name": "Sitting", "frames": ["golden_freddy_office.png"]}
     ]),
@@ -187,7 +187,7 @@ scene_objects = [
         {"name": "1B_Chica", "frames": ["dinningarea-c.png"]},
         {"name": "1B_Freddy", "frames": ["dinningarea-f.png"]},
         {"name": "1B_Empty", "frames": ["dinningarea.png"]},
-        # CAM 1C: Pirate Cove (Dash/Foxy)
+        # CAM 1C: Pirate Cove (Foxy)
         {"name": "1C_Stage1", "frames": ["pirate_cove.png"]},
         {"name": "1C_Stage2", "frames": ["pirate_cove-1.png"]},
         {"name": "1C_Stage3", "frames": ["pirate_cove-2.png"]},
@@ -195,7 +195,7 @@ scene_objects = [
         # CAM 2A: West Hall (leads directly to Left Door!)
         {"name": "2A_Empty", "frames": ["west_hall.png"]},
         {"name": "2A_Bonnie", "frames": ["west_hall-b.png"]},
-        {"name": "2A_DashSprint", "frames": [f"dash_run_{i:02d}.png" for i in range(8)], "loop": True, "time": 0.06},
+        {"name": "2A_FoxySprint", "frames": [f"foxy_run_{i:02d}.png" for i in range(8)], "loop": True, "time": 0.06},
         # CAM 2B: West Hall Corner (Right outside Left Door Window!)
         {"name": "2B_Empty", "frames": ["whallcorner.png"]},
         {"name": "2B_Bonnie", "frames": ["whallcorner-b.png"]},
@@ -252,21 +252,21 @@ scene_objects = [
     make_text("CamLabelText", "CAM 1A - SHOW STAGE", 52, "VT323-Regular.ttf", {"r":255,"g":255,"b":255}),
 
     # Animated Jumpscare Objects
-    make_sprite("MalerJumpscare", [
-        {"name": "Scare", "frames": [f"maler_scare_{i:02d}.png" for i in range(7)], "loop": True, "time": 0.04},
-        {"name": "Blackout", "frames": [f"maler_blackout_{i:02d}.png" for i in range(6)], "loop": True, "time": 0.05}
+    make_sprite("FreddyJumpscare", [
+        {"name": "Scare", "frames": [f"freddy_scare_{i:02d}.png" for i in range(7)], "loop": True, "time": 0.04},
+        {"name": "Blackout", "frames": [f"freddy_scare_{i:02d}.png" for i in range(6)], "loop": True, "time": 0.05}
     ]),
-    make_sprite("KarkasJumpscare", [
-        {"name": "Scare", "frames": [f"karkas_scare_{i:02d}.png" for i in range(7)], "loop": True, "time": 0.04}
+    make_sprite("BonnieJumpscare", [
+        {"name": "Scare", "frames": [f"bonnie_scare_{i:02d}.png" for i in range(7)], "loop": True, "time": 0.04}
     ]),
-    make_sprite("PlagueJumpscare", [
-        {"name": "Scare", "frames": [f"plague_scare_{i:02d}.png" for i in range(6)], "loop": True, "time": 0.04}
+    make_sprite("ChicaJumpscare", [
+        {"name": "Scare", "frames": [f"chica_scare_{i:02d}.png" for i in range(6)], "loop": True, "time": 0.04}
     ]),
-    make_sprite("DashJumpscare", [
-        {"name": "Scare", "frames": [f"dash_scare_{i:02d}.png" for i in range(7)], "loop": True, "time": 0.04}
+    make_sprite("FoxyJumpscare", [
+        {"name": "Scare", "frames": [f"foxy_scare_{i:02d}.png" for i in range(7)], "loop": True, "time": 0.04}
     ]),
-    make_sprite("Entity5Jumpscare", [
-        {"name": "Scare", "frames": ["entity5_scare.png"]}
+    make_sprite("GoldenFreddyJumpscare", [
+        {"name": "Scare", "frames": ["golden_freddy_scare.png"]}
     ]),
 
     make_text("GameOverText", "GAME OVER", 110, "Creepster-Regular.ttf", {"r":255,"g":20,"b":20}),
@@ -332,11 +332,11 @@ scene_instances = [
     make_inst("MonitorFlipBar", "UILayer", 660, 1000, 60),
 
     # Jumpscare Layer
-    make_inst("MalerJumpscare", "JumpscareLayer", 0, 0, 100),
-    make_inst("KarkasJumpscare", "JumpscareLayer", 0, 0, 100),
-    make_inst("PlagueJumpscare", "JumpscareLayer", 0, 0, 100),
-    make_inst("DashJumpscare", "JumpscareLayer", 0, 0, 100),
-    make_inst("Entity5Jumpscare", "JumpscareLayer", 0, 0, 100),
+    make_inst("FreddyJumpscare", "JumpscareLayer", 0, 0, 100),
+    make_inst("BonnieJumpscare", "JumpscareLayer", 0, 0, 100),
+    make_inst("ChicaJumpscare", "JumpscareLayer", 0, 0, 100),
+    make_inst("FoxyJumpscare", "JumpscareLayer", 0, 0, 100),
+    make_inst("GoldenFreddyJumpscare", "JumpscareLayer", 0, 0, 100),
     make_inst("GameOverText", "JumpscareLayer", 650, 480, 101),
     make_inst("VictoryText", "VictoryLayer", 600, 420, 102)
 ]
@@ -360,19 +360,19 @@ game_variables = [
     {"name": "SelectedCam", "type": "string", "value": "1A"},
     {"name": "OfficePanX", "type": "number", "value": -240.0},
     {"name": "AI_TickTimer", "type": "number", "value": 0.0},
-    {"name": "Maler_Level", "type": "number", "value": 0},
-    {"name": "Maler_Pos", "type": "number", "value": 1},
-    {"name": "Karkas_Level", "type": "number", "value": 3},
-    {"name": "Karkas_Pos", "type": "number", "value": 1},
-    {"name": "Karkas_BlindspotTimer", "type": "number", "value": 0.0},
-    {"name": "Plague_Level", "type": "number", "value": 2},
-    {"name": "Plague_Pos", "type": "number", "value": 1},
-    {"name": "Plague_BlindspotTimer", "type": "number", "value": 0.0},
-    {"name": "Dash_Level", "type": "number", "value": 2},
-    {"name": "Dash_Stage", "type": "number", "value": 1},
-    {"name": "Dash_SprintTimer", "type": "number", "value": 0.0},
-    {"name": "Entity5_InOffice", "type": "number", "value": 0},
-    {"name": "Entity5_Timer", "type": "number", "value": 0.0},
+    {"name": "Freddy_Level", "type": "number", "value": 0},
+    {"name": "Freddy_Pos", "type": "number", "value": 1},
+    {"name": "Bonnie_Level", "type": "number", "value": 3},
+    {"name": "Bonnie_Pos", "type": "number", "value": 1},
+    {"name": "Bonnie_BlindspotTimer", "type": "number", "value": 0.0},
+    {"name": "Chica_Level", "type": "number", "value": 2},
+    {"name": "Chica_Pos", "type": "number", "value": 1},
+    {"name": "Chica_BlindspotTimer", "type": "number", "value": 0.0},
+    {"name": "Foxy_Level", "type": "number", "value": 2},
+    {"name": "Foxy_Stage", "type": "number", "value": 1},
+    {"name": "Foxy_SprintTimer", "type": "number", "value": 0.0},
+    {"name": "GoldenFreddy_InOffice", "type": "number", "value": 0},
+    {"name": "GoldenFreddy_Timer", "type": "number", "value": 0.0},
     {"name": "GameOver", "type": "number", "value": 0},
     {"name": "GameOverJumpscare", "type": "string", "value": ""}
 ]
@@ -462,22 +462,22 @@ def build_modules():
         {
             "type": "BuiltinCommonInstructions::Standard",
             "conditions": [cond_var("TimeSeconds", ">=", 120), cond_var("TimeSeconds", "<", 180), {"type": {"value": "BuiltinCommonInstructions::Once"}, "parameters": [""]}],
-            "actions": [act_mod_var("Hour", "=", 2), act_mod_var("HourString", "=", '"2 AM"'), act_mod_var("Karkas_Level", "+", 1), act_mod_var("Plague_Level", "+", 1)]
+            "actions": [act_mod_var("Hour", "=", 2), act_mod_var("HourString", "=", '"2 AM"'), act_mod_var("Bonnie_Level", "+", 1), act_mod_var("Chica_Level", "+", 1)]
         },
         {
             "type": "BuiltinCommonInstructions::Standard",
             "conditions": [cond_var("TimeSeconds", ">=", 180), cond_var("TimeSeconds", "<", 240), {"type": {"value": "BuiltinCommonInstructions::Once"}, "parameters": [""]}],
-            "actions": [act_mod_var("Hour", "=", 3), act_mod_var("HourString", "=", '"3 AM"'), act_mod_var("Dash_Level", "+", 1)]
+            "actions": [act_mod_var("Hour", "=", 3), act_mod_var("HourString", "=", '"3 AM"'), act_mod_var("Foxy_Level", "+", 1)]
         },
         {
             "type": "BuiltinCommonInstructions::Standard",
             "conditions": [cond_var("TimeSeconds", ">=", 240), cond_var("TimeSeconds", "<", 300), {"type": {"value": "BuiltinCommonInstructions::Once"}, "parameters": [""]}],
-            "actions": [act_mod_var("Hour", "=", 4), act_mod_var("HourString", "=", '"4 AM"'), act_mod_var("Maler_Level", "=", 1), act_mod_var("Karkas_Level", "+", 1)]
+            "actions": [act_mod_var("Hour", "=", 4), act_mod_var("HourString", "=", '"4 AM"'), act_mod_var("Freddy_Level", "=", 1), act_mod_var("Bonnie_Level", "+", 1)]
         },
         {
             "type": "BuiltinCommonInstructions::Standard",
             "conditions": [cond_var("TimeSeconds", ">=", 300), cond_var("TimeSeconds", "<", 360), {"type": {"value": "BuiltinCommonInstructions::Once"}, "parameters": [""]}],
-            "actions": [act_mod_var("Hour", "=", 5), act_mod_var("HourString", "=", '"5 AM"'), act_mod_var("Maler_Level", "+", 1)]
+            "actions": [act_mod_var("Hour", "=", 5), act_mod_var("HourString", "=", '"5 AM"'), act_mod_var("Freddy_Level", "+", 1)]
         },
         # 6 AM
         {
@@ -530,7 +530,7 @@ def build_modules():
             "type": "BuiltinCommonInstructions::Standard",
             "conditions": [cond_var("Blackout", "=", 1), cond_var("BlackoutTimer", ">=", 3.0), cond_var("BlackoutTimer", "<", 7.0), {"type": {"value": "BuiltinCommonInstructions::Once"}, "parameters": [""]}],
             "actions": [
-                act_set_anim("OfficeBackground", "MalerEyes"),
+                act_set_anim("OfficeBackground", "FreddyEyes"),
                 act_play_music("music_box.ogg", "no", "80", "1")
             ]
         },
@@ -540,7 +540,7 @@ def build_modules():
             "actions": [
                 act_mod_var("GameOver", "=", 1),
                 act_show_layer("JumpscareLayer"),
-                act_set_anim("MalerJumpscare", "Blackout"),
+                act_set_anim("FreddyJumpscare", "Blackout"),
                 act_play_sound("jumpscare_screamer.ogg", "no", "100", "1")
             ]
         }
@@ -585,23 +585,23 @@ def build_modules():
         },
         {
             "type": "BuiltinCommonInstructions::Standard",
-            "conditions": [cond_var("Blackout", "=", 0), cond_var("LightLeft_On", "=", 1), cond_var("Karkas_Pos", "!=", 6)],
+            "conditions": [cond_var("Blackout", "=", 0), cond_var("LightLeft_On", "=", 1), cond_var("Bonnie_Pos", "!=", 6)],
             "actions": [act_set_anim("OfficeBackground", "LeftLight")]
         },
         {
             "type": "BuiltinCommonInstructions::Standard",
-            "conditions": [cond_var("Blackout", "=", 0), cond_var("LightLeft_On", "=", 1), cond_var("Karkas_Pos", "=", 6)],
-            "actions": [act_set_anim("OfficeBackground", "LeftLight_Karkas")]
+            "conditions": [cond_var("Blackout", "=", 0), cond_var("LightLeft_On", "=", 1), cond_var("Bonnie_Pos", "=", 6)],
+            "actions": [act_set_anim("OfficeBackground", "LeftLight_Bonnie")]
         },
         {
             "type": "BuiltinCommonInstructions::Standard",
-            "conditions": [cond_var("Blackout", "=", 0), cond_var("LightRight_On", "=", 1), cond_var("Plague_Pos", "!=", 7)],
+            "conditions": [cond_var("Blackout", "=", 0), cond_var("LightRight_On", "=", 1), cond_var("Chica_Pos", "!=", 7)],
             "actions": [act_set_anim("OfficeBackground", "RightLight")]
         },
         {
             "type": "BuiltinCommonInstructions::Standard",
-            "conditions": [cond_var("Blackout", "=", 0), cond_var("LightRight_On", "=", 1), cond_var("Plague_Pos", "=", 7)],
-            "actions": [act_set_anim("OfficeBackground", "RightLight_Plague")]
+            "conditions": [cond_var("Blackout", "=", 0), cond_var("LightRight_On", "=", 1), cond_var("Chica_Pos", "=", 7)],
+            "actions": [act_set_anim("OfficeBackground", "RightLight_Chica")]
         },
 
         # Left Door Button Click
@@ -657,7 +657,7 @@ def build_modules():
                 act_show_layer("CameraLayer"),
                 act_play_sound("camera_up.ogg", "no", "100", "1"),
                 act_set_anim("TabletAnimation", "FlipUp"),
-                act_mod_var("Entity5_InOffice", "=", 0),
+                act_mod_var("GoldenFreddy_InOffice", "=", 0),
                 act_set_opacity("GoldenFreddyOffice", 0)
             ]
         },
@@ -733,80 +733,80 @@ def build_modules():
         # Cam 2A West Hall Sprint
         {
             "type": "BuiltinCommonInstructions::Standard",
-            "conditions": [cond_var("SelectedCam", "=", '"2A"'), cond_var("Dash_Stage", "=", 4)],
-            "actions": [act_set_anim("CameraFeed", "2A_DashSprint")]
+            "conditions": [cond_var("SelectedCam", "=", '"2A"'), cond_var("Foxy_Stage", "=", 4)],
+            "actions": [act_set_anim("CameraFeed", "2A_FoxySprint")]
         },
         {
             "type": "BuiltinCommonInstructions::Standard",
-            "conditions": [cond_var("SelectedCam", "=", '"2A"'), cond_var("Dash_Stage", "!=", 4)],
+            "conditions": [cond_var("SelectedCam", "=", '"2A"'), cond_var("Foxy_Stage", "!=", 4)],
             "actions": [act_set_anim("CameraFeed", "2A_Empty")]
         },
 
         # Cam 1A Show Stage States
         {
             "type": "BuiltinCommonInstructions::Standard",
-            "conditions": [cond_var("SelectedCam", "=", '"1A"'), cond_var("Karkas_Pos", "=", 1), cond_var("Plague_Pos", "=", 1), cond_var("Maler_Pos", "=", 1)],
+            "conditions": [cond_var("SelectedCam", "=", '"1A"'), cond_var("Bonnie_Pos", "=", 1), cond_var("Chica_Pos", "=", 1), cond_var("Freddy_Pos", "=", 1)],
             "actions": [act_set_anim("CameraFeed", "1A_All")]
         },
         {
             "type": "BuiltinCommonInstructions::Standard",
-            "conditions": [cond_var("SelectedCam", "=", '"1A"'), cond_var("Karkas_Pos", "!=", 1), cond_var("Plague_Pos", "=", 1), cond_var("Maler_Pos", "=", 1)],
+            "conditions": [cond_var("SelectedCam", "=", '"1A"'), cond_var("Bonnie_Pos", "!=", 1), cond_var("Chica_Pos", "=", 1), cond_var("Freddy_Pos", "=", 1)],
             "actions": [act_set_anim("CameraFeed", "1A_ChicaFreddy")]
         },
         {
             "type": "BuiltinCommonInstructions::Standard",
-            "conditions": [cond_var("SelectedCam", "=", '"1A"'), cond_var("Karkas_Pos", "=", 1), cond_var("Plague_Pos", "!=", 1), cond_var("Maler_Pos", "=", 1)],
+            "conditions": [cond_var("SelectedCam", "=", '"1A"'), cond_var("Bonnie_Pos", "=", 1), cond_var("Chica_Pos", "!=", 1), cond_var("Freddy_Pos", "=", 1)],
             "actions": [act_set_anim("CameraFeed", "1A_BonnieFreddy")]
         },
         {
             "type": "BuiltinCommonInstructions::Standard",
-            "conditions": [cond_var("SelectedCam", "=", '"1A"'), cond_var("Karkas_Pos", "!=", 1), cond_var("Plague_Pos", "!=", 1), cond_var("Maler_Pos", "=", 1)],
+            "conditions": [cond_var("SelectedCam", "=", '"1A"'), cond_var("Bonnie_Pos", "!=", 1), cond_var("Chica_Pos", "!=", 1), cond_var("Freddy_Pos", "=", 1)],
             "actions": [act_set_anim("CameraFeed", "1A_FreddyOnly")]
         },
         {
             "type": "BuiltinCommonInstructions::Standard",
-            "conditions": [cond_var("SelectedCam", "=", '"1A"'), cond_var("Maler_Pos", "!=", 1)],
+            "conditions": [cond_var("SelectedCam", "=", '"1A"'), cond_var("Freddy_Pos", "!=", 1)],
             "actions": [act_set_anim("CameraFeed", "1A_Empty")]
         },
 
         # Cam 2B West Hall Corner (Bonnie outside left door)
         {
             "type": "BuiltinCommonInstructions::Standard",
-            "conditions": [cond_var("SelectedCam", "=", '"2B"'), cond_var("Karkas_Pos", "=", 6)],
+            "conditions": [cond_var("SelectedCam", "=", '"2B"'), cond_var("Bonnie_Pos", "=", 6)],
             "actions": [act_set_anim("CameraFeed", "2B_Bonnie")]
         },
         {
             "type": "BuiltinCommonInstructions::Standard",
-            "conditions": [cond_var("SelectedCam", "=", '"2B"'), cond_var("Karkas_Pos", "!=", 6)],
+            "conditions": [cond_var("SelectedCam", "=", '"2B"'), cond_var("Bonnie_Pos", "!=", 6)],
             "actions": [act_set_anim("CameraFeed", "2B_Empty")]
         },
 
         # Cam 4B East Hall Corner (Chica/Freddy outside right door)
         {
             "type": "BuiltinCommonInstructions::Standard",
-            "conditions": [cond_var("SelectedCam", "=", '"4B"'), cond_var("Plague_Pos", "=", 6)],
+            "conditions": [cond_var("SelectedCam", "=", '"4B"'), cond_var("Chica_Pos", "=", 6)],
             "actions": [act_set_anim("CameraFeed", "4B_Chica")]
         },
         {
             "type": "BuiltinCommonInstructions::Standard",
-            "conditions": [cond_var("SelectedCam", "=", '"4B"'), cond_var("Maler_Pos", "=", 6)],
+            "conditions": [cond_var("SelectedCam", "=", '"4B"'), cond_var("Freddy_Pos", "=", 6)],
             "actions": [act_set_anim("CameraFeed", "4B_Freddy")]
         },
         {
             "type": "BuiltinCommonInstructions::Standard",
-            "conditions": [cond_var("SelectedCam", "=", '"4B"'), cond_var("Plague_Pos", "!=", 6), cond_var("Maler_Pos", "!=", 6)],
+            "conditions": [cond_var("SelectedCam", "=", '"4B"'), cond_var("Chica_Pos", "!=", 6), cond_var("Freddy_Pos", "!=", 6)],
             "actions": [act_set_anim("CameraFeed", "4B_Empty")]
         },
 
         # Cam 5 Backstage States
         {
             "type": "BuiltinCommonInstructions::Standard",
-            "conditions": [cond_var("SelectedCam", "=", '"5"'), cond_var("Karkas_Pos", "=", 3)],
+            "conditions": [cond_var("SelectedCam", "=", '"5"'), cond_var("Bonnie_Pos", "=", 3)],
             "actions": [act_set_anim("CameraFeed", "5_Bonnie")]
         },
         {
             "type": "BuiltinCommonInstructions::Standard",
-            "conditions": [cond_var("SelectedCam", "=", '"5"'), cond_var("Karkas_Pos", "!=", 3)],
+            "conditions": [cond_var("SelectedCam", "=", '"5"'), cond_var("Bonnie_Pos", "!=", 3)],
             "actions": [act_set_anim("CameraFeed", "5_Empty")]
         }
     ]
@@ -823,110 +823,110 @@ def build_modules():
             "conditions": [cond_var("AI_TickTimer", ">=", 4.97)],
             "actions": [
                 act_mod_var("AI_TickTimer", "=", 0),
-                act_mod_var("Karkas_Pos", "+", "RandomInRange(1, 20) <= GlobalVariable(Karkas_Level) ? 1 : 0"),
-                act_mod_var("Plague_Pos", "+", "RandomInRange(1, 20) <= GlobalVariable(Plague_Level) ? 1 : 0"),
-                act_mod_var("Maler_Pos", "+", "(RandomInRange(1, 20) <= GlobalVariable(Maler_Level) && (GlobalVariable(Monitor_Open) == 0 || GlobalVariable(SelectedCam) != '1A')) ? 1 : 0")
+                act_mod_var("Bonnie_Pos", "+", "RandomInRange(1, 20) <= GlobalVariable(Bonnie_Level) ? 1 : 0"),
+                act_mod_var("Chica_Pos", "+", "RandomInRange(1, 20) <= GlobalVariable(Chica_Level) ? 1 : 0"),
+                act_mod_var("Freddy_Pos", "+", "(RandomInRange(1, 20) <= GlobalVariable(Freddy_Level) && (GlobalVariable(Monitor_Open) == 0 || GlobalVariable(SelectedCam) != '1A')) ? 1 : 0")
             ]
         },
 
-        # Dash Cove Stalling
+        # Foxy Pirate Cove Stalling
         {
             "type": "BuiltinCommonInstructions::Standard",
             "conditions": [
                 cond_var("SelectedCam", "!=", '"1C"'),
                 cond_var("AI_TickTimer", "=", 0),
-                cond_var("Dash_Stage", "<", 4)
+                cond_var("Foxy_Stage", "<", 4)
             ],
-            "actions": [act_mod_var("Dash_Stage", "+", "RandomInRange(1, 20) <= GlobalVariable(Dash_Level) ? 1 : 0")]
+            "actions": [act_mod_var("Foxy_Stage", "+", "RandomInRange(1, 20) <= GlobalVariable(Foxy_Level) ? 1 : 0")]
         },
         {
             "type": "BuiltinCommonInstructions::Standard",
-            "conditions": [cond_var("Dash_Stage", "=", 4), {"type": {"value": "BuiltinCommonInstructions::Once"}, "parameters": [""]}],
-            "actions": [act_play_sound("dash_sprint.ogg", "no", "100", "1")]
+            "conditions": [cond_var("Foxy_Stage", "=", 4), {"type": {"value": "BuiltinCommonInstructions::Once"}, "parameters": [""]}],
+            "actions": [act_play_sound("foxy_sprint.ogg", "no", "100", "1")]
         },
         {
             "type": "BuiltinCommonInstructions::Standard",
-            "conditions": [cond_var("Dash_Stage", "=", 4)],
-            "actions": [act_mod_var("Dash_SprintTimer", "+", "TimeDelta()")]
+            "conditions": [cond_var("Foxy_Stage", "=", 4)],
+            "actions": [act_mod_var("Foxy_SprintTimer", "+", "TimeDelta()")]
         },
         {
             "type": "BuiltinCommonInstructions::Standard",
-            "conditions": [cond_var("Dash_Stage", "=", 4), cond_var("Dash_SprintTimer", ">=", 2.5), cond_var("DoorLeft_Closed", "=", 1)],
+            "conditions": [cond_var("Foxy_Stage", "=", 4), cond_var("Foxy_SprintTimer", ">=", 2.5), cond_var("DoorLeft_Closed", "=", 1)],
             "actions": [
                 act_play_sound("door_pound.ogg", "no", "100", "1"),
                 act_mod_var("Power", "-", 5),
-                act_mod_var("Dash_Stage", "=", 1),
-                act_mod_var("Dash_SprintTimer", "=", 0)
+                act_mod_var("Foxy_Stage", "=", 1),
+                act_mod_var("Foxy_SprintTimer", "=", 0)
             ]
         },
         {
             "type": "BuiltinCommonInstructions::Standard",
-            "conditions": [cond_var("Dash_Stage", "=", 4), cond_var("Dash_SprintTimer", ">=", 2.5), cond_var("DoorLeft_Closed", "=", 0), cond_var("GameOver", "=", 0)],
+            "conditions": [cond_var("Foxy_Stage", "=", 4), cond_var("Foxy_SprintTimer", ">=", 2.5), cond_var("DoorLeft_Closed", "=", 0), cond_var("GameOver", "=", 0)],
             "actions": [
                 act_mod_var("GameOver", "=", 1),
                 act_show_layer("JumpscareLayer"),
-                act_set_anim("DashJumpscare", "Scare"),
+                act_set_anim("FoxyJumpscare", "Scare"),
                 act_play_sound("jumpscare_screamer.ogg", "no", "100", "1")
             ]
         },
 
-        # Karkas at Left Blindspot
+        # Bonnie at Left Blindspot
         {
             "type": "BuiltinCommonInstructions::Standard",
-            "conditions": [cond_var("Karkas_Pos", "=", 6), cond_var("DoorLeft_Closed", "=", 1)],
+            "conditions": [cond_var("Bonnie_Pos", "=", 6), cond_var("DoorLeft_Closed", "=", 1)],
             "actions": [
                 act_play_sound("door_pound.ogg", "no", "100", "1"),
-                act_mod_var("Karkas_Pos", "=", 2),
-                act_mod_var("Karkas_BlindspotTimer", "=", 0)
+                act_mod_var("Bonnie_Pos", "=", 2),
+                act_mod_var("Bonnie_BlindspotTimer", "=", 0)
             ]
         },
         {
             "type": "BuiltinCommonInstructions::Standard",
-            "conditions": [cond_var("Karkas_Pos", "=", 6), cond_var("DoorLeft_Closed", "=", 0)],
-            "actions": [act_mod_var("Karkas_BlindspotTimer", "+", "TimeDelta()")]
+            "conditions": [cond_var("Bonnie_Pos", "=", 6), cond_var("DoorLeft_Closed", "=", 0)],
+            "actions": [act_mod_var("Bonnie_BlindspotTimer", "+", "TimeDelta()")]
         },
         {
             "type": "BuiltinCommonInstructions::Standard",
-            "conditions": [cond_var("Karkas_Pos", "=", 6), cond_var("DoorLeft_Closed", "=", 0), cond_var("Karkas_BlindspotTimer", ">=", 5.0), cond_var("GameOver", "=", 0)],
+            "conditions": [cond_var("Bonnie_Pos", "=", 6), cond_var("DoorLeft_Closed", "=", 0), cond_var("Bonnie_BlindspotTimer", ">=", 5.0), cond_var("GameOver", "=", 0)],
             "actions": [
                 act_mod_var("GameOver", "=", 1),
                 act_show_layer("JumpscareLayer"),
-                act_set_anim("KarkasJumpscare", "Scare"),
+                act_set_anim("BonnieJumpscare", "Scare"),
                 act_play_sound("jumpscare_screamer.ogg", "no", "100", "1")
             ]
         },
 
-        # Plague at Right Blindspot
+        # Chica at Right Blindspot
         {
             "type": "BuiltinCommonInstructions::Standard",
-            "conditions": [cond_var("Plague_Pos", "=", 7), cond_var("DoorRight_Closed", "=", 1)],
+            "conditions": [cond_var("Chica_Pos", "=", 7), cond_var("DoorRight_Closed", "=", 1)],
             "actions": [
                 act_play_sound("door_pound.ogg", "no", "100", "1"),
-                act_mod_var("Plague_Pos", "=", 2),
-                act_mod_var("Plague_BlindspotTimer", "=", 0)
+                act_mod_var("Chica_Pos", "=", 2),
+                act_mod_var("Chica_BlindspotTimer", "=", 0)
             ]
         },
         {
             "type": "BuiltinCommonInstructions::Standard",
-            "conditions": [cond_var("Plague_Pos", "=", 7), cond_var("DoorRight_Closed", "=", 0)],
-            "actions": [act_mod_var("Plague_BlindspotTimer", "+", "TimeDelta()")]
+            "conditions": [cond_var("Chica_Pos", "=", 7), cond_var("DoorRight_Closed", "=", 0)],
+            "actions": [act_mod_var("Chica_BlindspotTimer", "+", "TimeDelta()")]
         },
         {
             "type": "BuiltinCommonInstructions::Standard",
-            "conditions": [cond_var("Plague_Pos", "=", 7), cond_var("DoorRight_Closed", "=", 0), cond_var("Plague_BlindspotTimer", ">=", 5.0), cond_var("GameOver", "=", 0)],
+            "conditions": [cond_var("Chica_Pos", "=", 7), cond_var("DoorRight_Closed", "=", 0), cond_var("Chica_BlindspotTimer", ">=", 5.0), cond_var("GameOver", "=", 0)],
             "actions": [
                 act_mod_var("GameOver", "=", 1),
                 act_show_layer("JumpscareLayer"),
-                act_set_anim("PlagueJumpscare", "Scare"),
+                act_set_anim("ChicaJumpscare", "Scare"),
                 act_play_sound("jumpscare_screamer.ogg", "no", "100", "1")
             ]
         },
 
-        # Maler corner sneak (Pos 6 -> Office)
+        # Freddy corner sneak (Pos 6 -> Office)
         {
             "type": "BuiltinCommonInstructions::Standard",
             "conditions": [
-                cond_var("Maler_Pos", "=", 6),
+                cond_var("Freddy_Pos", "=", 6),
                 cond_var("Monitor_Open", "=", 0),
                 cond_var("DoorRight_Closed", "=", 0),
                 cond_var("GameOver", "=", 0)
@@ -934,7 +934,7 @@ def build_modules():
             "actions": [
                 act_mod_var("GameOver", "=", 1),
                 act_show_layer("JumpscareLayer"),
-                act_set_anim("MalerJumpscare", "Scare"),
+                act_set_anim("FreddyJumpscare", "Scare"),
                 act_play_sound("jumpscare_screamer.ogg", "no", "100", "1")
             ]
         }
@@ -1028,7 +1028,7 @@ project = {
         "antialisingEnabledOnMobile": False,
         "folderProject": False,
         "orientation": "landscape",
-        "packageName": "com.yurist.fivenightsatmaler",
+        "packageName": "com.yurist.fivenightsatfreddys",
         "pixelsRounding": False,
         "projectUuid": uid(),
         "scaleMode": "linear",

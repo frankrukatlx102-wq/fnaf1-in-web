@@ -1,15 +1,12 @@
 /**
- * Five Nights at Freddy's - Render Engine
- * Canvas 2D rendering pipeline (1920x1080 native resolution).
- * Handles CRT scanlines, main menu, Custom Night, Extra dossiers, office pan, doors, cameras, and jumpscares.
+ * Canvas rendering pipeline for Five Nights at Freddy's.
+ * Renders the office, cameras, CRT scanline atmosphere, jumpscares, and FNaF-style menus.
  */
 
 function render() {
   ctx.clearRect(0, 0, 1920, 1080);
 
-  // ---------------------------------------------------------------------------
-  // 1. MAIN MENU
-  // ---------------------------------------------------------------------------
+  // Main menu
   if (G.gameState === 'menu') {
     ctx.fillStyle = '#000000';
     ctx.fillRect(0, 0, 1920, 1080);
@@ -37,7 +34,7 @@ function render() {
     ctx.fillStyle = '#ff2222';
     ctx.fillText("Freddy's", 140, 480);
 
-    // Stars display (★)
+    // Stars display
     if (G.saveData.stars > 0) {
       ctx.save();
       ctx.font = '48px Consolas, FnafConsolas, monospace';
@@ -50,7 +47,7 @@ function render() {
       ctx.restore();
     }
 
-    // Dynamic Menu Items
+    // Menu options
     const menuItems = getAvailableMenuItems();
     for (let idx = 0; idx < menuItems.length; idx++) {
       const item = menuItems[idx];
@@ -73,15 +70,13 @@ function render() {
 
     ctx.font = '26px VT323, monospace';
     ctx.fillStyle = '#555555';
-    ctx.fillText('v 2.1 (Modular Engine & SHA-256 Data Integrity)', 80, 1040);
+    ctx.fillText('v 2.1 (Authentic FNaF 1 HD Engine)', 80, 1040);
     ctx.textAlign = 'right';
-    ctx.fillText('© Scott Cawthon / Fazbear Entertainment', 1840, 1040);
+    ctx.fillText('© Scott Cawthon', 1840, 1040);
     return;
   }
 
-  // ---------------------------------------------------------------------------
-  // 2. CUSTOM NIGHT (NIGHT 7)
-  // ---------------------------------------------------------------------------
+  // Custom Night (Night 7)
   if (G.gameState === 'custom_night') {
     ctx.fillStyle = '#050508';
     ctx.fillRect(0, 0, 1920, 1080);
@@ -98,19 +93,19 @@ function render() {
     ctx.fillStyle = '#ffffff';
     ctx.fillText('CUSTOM NIGHT', 960, 100);
 
-    ctx.font = '32px VT323, monospace';
+    ctx.font = '28px VT323, monospace';
     ctx.fillStyle = '#888888';
-    ctx.fillText('НАСТРОЙКА УРОВНЕЙ ИСКУССТВЕННОГО ИНТЕЛЛЕКТА (0 - 20)', 960, 145);
+    ctx.fillText('SET A.I. LEVELS (0 - 20)', 960, 145);
 
     const cards = [
-      { key: 'freddy', name: 'Freddy Fazbear', sub: 'Show Stage Leader',   img: images.custom_freddy, x: 140,  color: '#c28544' },
-      { key: 'bonnie', name: 'Bonnie',         sub: 'Left Hall Prowler',    img: images.custom_bonnie, x: 540,  color: '#6866b8' },
-      { key: 'chica',  name: 'Chica',          sub: 'Right Hall Stalker',   img: images.custom_chica,  x: 940,  color: '#cccc33' },
-      { key: 'foxy',   name: 'Foxy',           sub: 'Pirate Cove Sprinter', img: images.custom_foxy,   x: 1340, color: '#c23333' }
+      { key: 'freddy', name: 'Freddy Fazbear', sub: 'Show Stage',   img: images.custom_freddy, x: 140,  color: '#c28544' },
+      { key: 'bonnie', name: 'Bonnie',         sub: 'Left Hall',    img: images.custom_bonnie, x: 540,  color: '#6866b8' },
+      { key: 'chica',  name: 'Chica',          sub: 'Right Hall',   img: images.custom_chica,  x: 940,  color: '#cccc33' },
+      { key: 'foxy',   name: 'Foxy',           sub: 'Pirate Cove',  img: images.custom_foxy,   x: 1340, color: '#c23333' }
     ];
 
     for (const c of cards) {
-      ctx.fillStyle = 'rgba(20, 20, 25, 0.85)';
+      ctx.fillStyle = 'rgba(15, 15, 20, 0.9)';
       ctx.fillRect(c.x, 190, 340, 520);
       ctx.strokeStyle = c.color;
       ctx.lineWidth = 3;
@@ -122,12 +117,12 @@ function render() {
         ctx.fillStyle = '#111';
         ctx.fillRect(c.x + 70, 220, 200, 200);
       }
-      ctx.strokeStyle = '#444';
+      ctx.strokeStyle = '#333';
       ctx.lineWidth = 2;
       ctx.strokeRect(c.x + 70, 220, 200, 200);
 
       ctx.textAlign = 'center';
-      ctx.font = '46px SpecialElite, monospace';
+      ctx.font = '42px SpecialElite, monospace';
       ctx.fillStyle = '#ffffff';
       ctx.fillText(c.name, c.x + 170, 470);
 
@@ -166,399 +161,223 @@ function render() {
       ctx.fillText('A.I. LEVEL', c.x + 170, 670);
     }
 
-    // Presets Row
+    // Presets row
     const presets = [
-      { name: '20 / 20 / 20 / 20', desc: 'Кошмар (Nightmare)', x: 140, w: 260 },
-      { name: '10 / 10 / 10 / 10', desc: 'Сложно (Hard)',       x: 440, w: 260 },
-      { name: '5 / 5 / 5 / 5',     desc: 'Средне (Normal)',     x: 740, w: 260 },
-      { name: '0 / 0 / 0 / 0',     desc: 'Пацифист (Safe)',     x: 1040, w: 260 }
+      { name: '20 / 20 / 20 / 20', sub: 'Nightmare', x: 140, w: 260 },
+      { name: '10 / 10 / 10 / 10', sub: 'Hard',      x: 440, w: 260 },
+      { name: '5 / 5 / 5 / 5',     sub: 'Medium',    x: 740, w: 260 },
+      { name: '0 / 0 / 0 / 0',     sub: 'Passive',   x: 1040, w: 260 }
     ];
 
     for (const p of presets) {
       const hover = (G.mouseX >= p.x && G.mouseX <= p.x + p.w && G.mouseY >= 760 && G.mouseY <= 820);
-      ctx.fillStyle = hover ? '#2a2a35' : '#14141c';
+      ctx.fillStyle = hover ? '#252530' : '#121218';
       ctx.fillRect(p.x, 760, p.w, 60);
-      ctx.strokeStyle = hover ? '#00ddff' : '#444455';
+      ctx.strokeStyle = hover ? '#ffffff' : '#333344';
       ctx.lineWidth = 2;
       ctx.strokeRect(p.x, 760, p.w, 60);
 
       ctx.textAlign = 'center';
-      ctx.font = '32px VT323, monospace';
-      ctx.fillStyle = hover ? '#00ddff' : '#ffffff';
+      ctx.font = '30px VT323, monospace';
+      ctx.fillStyle = hover ? '#ffffff' : '#cccccc';
       ctx.fillText(p.name, p.x + p.w / 2, 795);
       ctx.font = '20px VT323, monospace';
       ctx.fillStyle = '#777777';
-      ctx.fillText(p.desc, p.x + p.w / 2, 814);
+      ctx.fillText(p.sub, p.x + p.w / 2, 814);
     }
 
-    // Ready / Start Shift Button
+    // Ready button
     const hoverReady = (G.mouseX >= 1380 && G.mouseX <= 1740 && G.mouseY >= 740 && G.mouseY <= 830);
-    ctx.fillStyle = hoverReady ? '#005522' : '#003314';
+    ctx.fillStyle = hoverReady ? '#1b4d24' : '#0e2b14';
     ctx.fillRect(1380, 740, 360, 90);
-    ctx.strokeStyle = hoverReady ? '#00ff66' : '#00aa44';
-    ctx.lineWidth = 4;
+    ctx.strokeStyle = hoverReady ? '#44ff66' : '#22aa44';
+    ctx.lineWidth = 3;
     ctx.strokeRect(1380, 740, 360, 90);
 
     ctx.textAlign = 'center';
-    ctx.font = '54px VT323, monospace';
-    ctx.fillStyle = '#00ff66';
-    ctx.fillText('READY / СТАРТ', 1560, 802);
+    ctx.font = '50px VT323, monospace';
+    ctx.fillStyle = hoverReady ? '#ffffff' : '#44ff66';
+    ctx.fillText('READY', 1560, 800);
 
-    // Back to Menu Button
-    const hoverBack = (G.mouseX >= 140 && G.mouseX <= 460 && G.mouseY >= 880 && G.mouseY <= 950);
-    ctx.fillStyle = hoverBack ? '#2a2a35' : '#14141c';
-    ctx.fillRect(140, 880, 320, 70);
-    ctx.strokeStyle = hoverBack ? '#ffffff' : '#444455';
-    ctx.lineWidth = 2;
-    ctx.strokeRect(140, 880, 320, 70);
-
-    ctx.textAlign = 'center';
-    ctx.font = '36px VT323, monospace';
-    ctx.fillStyle = hoverBack ? '#ffffff' : '#888888';
-    ctx.fillText('<< В ГЛАВНОЕ МЕНЮ', 300, 925);
+    // Back button
+    const hoverBack = (G.mouseX >= 140 && G.mouseX <= 400 && G.mouseY >= 880 && G.mouseY <= 950);
+    ctx.font = '36px SpecialElite, monospace';
+    ctx.textAlign = 'left';
+    ctx.fillStyle = hoverBack ? '#ffffff' : '#777777';
+    ctx.fillText(hoverBack ? '>> BACK' : '   BACK', 140, 925);
     return;
   }
 
-  // ---------------------------------------------------------------------------
-  // 3. EXTRA DOSSIER & ARCHIVE
-  // ---------------------------------------------------------------------------
+  // Extra menu (FNaF style)
   if (G.gameState === 'extra') {
-    ctx.fillStyle = '#06060a';
+    ctx.fillStyle = '#050508';
     ctx.fillRect(0, 0, 1920, 1080);
 
     const sImg = images['static' + G.staticFrame];
     if (sImg && sImg.complete) {
-      ctx.globalAlpha = 0.20 + Math.random() * 0.06;
+      ctx.globalAlpha = 0.20 + Math.random() * 0.05;
       ctx.drawImage(sImg, 0, 0, 1920, 1080);
       ctx.globalAlpha = 1.0;
     }
 
     ctx.textAlign = 'left';
-    ctx.font = '50px SpecialElite, monospace';
+    ctx.font = '64px SpecialElite, monospace';
     ctx.fillStyle = '#ffffff';
-    ctx.fillText('АРХИВ ЭКСТРА / EXTRA MENU — ДОСЬЕ АНИМАТРОНИКОВ', 120, 65);
+    ctx.fillText('EXTRA', 120, 90);
 
-    ctx.font = '24px VT323, monospace';
-    ctx.fillStyle = '#88aacc';
-    ctx.fillText('Досье аниматроников, звуковой архив и быстрый выбор смен', 120, 102);
+    // Back button in top right
+    const hoverBackExtra = (G.mouseX >= 1600 && G.mouseX <= 1800 && G.mouseY >= 50 && G.mouseY <= 100);
+    ctx.font = '36px SpecialElite, monospace';
+    ctx.textAlign = 'right';
+    ctx.fillStyle = hoverBackExtra ? '#ffffff' : '#777777';
+    ctx.fillText(hoverBackExtra ? '>> BACK' : '   BACK', 1800, 90);
 
-    const hoverBackExtra = (G.mouseX >= 1520 && G.mouseX <= 1800 && G.mouseY >= 50 && G.mouseY <= 105);
-    ctx.fillStyle = hoverBackExtra ? '#282835' : '#121218';
-    ctx.fillRect(1520, 50, 280, 55);
-    ctx.strokeStyle = hoverBackExtra ? '#ffffff' : '#444455';
-    ctx.lineWidth = 2;
-    ctx.strokeRect(1520, 50, 280, 55);
-    ctx.textAlign = 'center';
-    ctx.font = '32px VT323, monospace';
-    ctx.fillStyle = hoverBackExtra ? '#ffffff' : '#888888';
-    ctx.fillText('<< В ГЛАВНОЕ МЕНЮ', 1660, 88);
-
+    // Tabs: Freddy, Bonnie, Chica, Foxy, Golden Freddy, Night Select
     const rosterList = [
-      { id: 0, name: 'Фредди Фазбер', color: '#c28544' },
-      { id: 1, name: 'Бонни', color: '#6866b8' },
-      { id: 2, name: 'Чика',  color: '#cccc33' },
-      { id: 3, name: 'Фокси', color: '#c23333' },
-      { id: 4, name: 'Золотой Фредди', color: '#ffd700' },
-      { id: 5, name: '🌙 ВЫБОР СМЕНЫ (НОЧИ)', color: '#00ff88' }
+      { id: 0, label: 'FREDDY', color: '#c28544' },
+      { id: 1, label: 'BONNIE', color: '#6866b8' },
+      { id: 2, label: 'CHICA',  color: '#cccc33' },
+      { id: 3, label: 'FOXY',   color: '#c23333' },
+      { id: 4, label: 'GOLDEN FREDDY', color: '#ffd700' },
+      { id: 5, label: 'NIGHTS', color: '#44ffaa' }
     ];
 
     for (let i = 0; i < 6; i++) {
       const item = rosterList[i];
       const bx = 120 + i * 280;
       const isSel = (G.extraSelectedAnim === i);
-      const isHover = (G.mouseX >= bx && G.mouseX <= bx + 265 && G.mouseY >= 130 && G.mouseY <= 185);
-      ctx.fillStyle = isSel ? '#202535' : (isHover ? '#151924' : '#0e1118');
-      ctx.fillRect(bx, 130, 265, 55);
-      ctx.strokeStyle = isSel ? item.color : (isHover ? '#445566' : '#252a38');
-      ctx.lineWidth = isSel ? 3 : 1;
-      ctx.strokeRect(bx, 130, 265, 55);
+      const isHover = (G.mouseX >= bx && G.mouseX <= bx + 260 && G.mouseY >= 130 && G.mouseY <= 180);
 
       ctx.textAlign = 'center';
-      ctx.font = '26px VT323, monospace';
-      ctx.fillStyle = isSel ? '#ffffff' : (isHover ? '#ccddee' : '#778899');
-      ctx.fillText(item.name, bx + 132, 168);
+      ctx.font = '32px SpecialElite, monospace';
+      if (isSel) {
+        ctx.fillStyle = item.color;
+        ctx.fillText(`[ ${item.label} ]`, bx + 130, 168);
+      } else {
+        ctx.fillStyle = isHover ? '#ffffff' : '#666666';
+        ctx.fillText(item.label, bx + 130, 168);
+      }
     }
 
     if (G.extraSelectedAnim === 5) {
-      // Night Selector Submenu
-      ctx.fillStyle = '#0b0d14';
-      ctx.fillRect(120, 210, 1680, 800);
-      ctx.strokeStyle = '#00ff88';
-      ctx.lineWidth = 2;
-      ctx.strokeRect(120, 210, 1680, 800);
-
+      // Clean FNaF-style night selector (Nights 1 to 6 & Custom Night)
       ctx.textAlign = 'center';
       ctx.font = '40px SpecialElite, monospace';
-      ctx.fillStyle = '#00ff88';
-      ctx.fillText('СЕЛЕКТОР СМЕНЫ / NIGHT SELECTOR (НОЧИ 1 - 5, 6 И КАСТОМ)', 960, 260);
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText('SELECT NIGHT', 960, 270);
 
-      ctx.font = '24px VT323, monospace';
-      ctx.fillStyle = '#88aacc';
-      ctx.fillText('Выберите любую смену для быстрого запуска', 960, 295);
-
-      const nightCardsRow1 = [
-        { night: 1, title: 'СМЕНА 1 / NIGHT 1', subtitle: 'Ознакомительный цикл', desc: 'Фредди и Фокси неактивны. Бонни и Чика начинают медленно бродить ближе к 3 AM. Отличное время освоиться с дверьми и камерами.', color: '#44aa88' },
-        { night: 2, title: 'СМЕНА 2 / NIGHT 2', subtitle: 'Умеренная активность', desc: 'Фокси начинает выглядывать из Пиратской бухты. Бонни и Чика перемещаются чаще. Регулярно проверяйте свет в коридорах.', color: '#4488cc' },
-        { night: 3, title: 'СМЕНА 3 / NIGHT 3', subtitle: 'Сбалансированная охота', desc: 'Фредди начинает красться в темноте. Бонни активно проверяет левую дверь, а Фокси готов выбежать из бухты.', color: '#9977dd' },
-        { night: 4, title: 'СМЕНА 4 / NIGHT 4', subtitle: 'Высокая угроза', desc: 'Фредди смеется при каждом шаге и подкрадывается к правой двери. Чика гремит посудой на кухне. Экономьте энергию!', color: '#dd8833' }
+      const nightsList = [
+        { night: 1, label: 'NIGHT 1', x: 260, y: 360 },
+        { night: 2, label: 'NIGHT 2', x: 720, y: 360 },
+        { night: 3, label: 'NIGHT 3', x: 1180, y: 360 },
+        { night: 4, label: 'NIGHT 4', x: 1640, y: 360 },
+        { night: 5, label: 'NIGHT 5', x: 490, y: 560 },
+        { night: 6, label: 'NIGHT 6', x: 960, y: 560 },
+        { night: 7, label: 'CUSTOM NIGHT', x: 1430, y: 560 }
       ];
 
-      for (let i = 0; i < 4; i++) {
-        const c = nightCardsRow1[i];
-        const cx = 140 + i * 420;
-        const cy = 320, cw = 380, ch = 240;
+      for (const n of nightsList) {
+        const w = (n.night === 7) ? 360 : 280;
+        const h = 80;
+        const bx = n.x - w / 2;
+        const by = n.y;
+        const hover = (G.mouseX >= bx && G.mouseX <= bx + w && G.mouseY >= by && G.mouseY <= by + h);
 
-        ctx.fillStyle = '#10141f';
-        ctx.fillRect(cx, cy, cw, ch);
-        ctx.strokeStyle = c.color;
+        ctx.fillStyle = hover ? '#222230' : '#101018';
+        ctx.fillRect(bx, by, w, h);
+        ctx.strokeStyle = hover ? '#ffffff' : '#333344';
         ctx.lineWidth = 2;
-        ctx.strokeRect(cx, cy, cw, ch);
+        ctx.strokeRect(bx, by, w, h);
 
         ctx.textAlign = 'center';
-        ctx.font = '30px SpecialElite, monospace';
-        ctx.fillStyle = '#ffffff';
-        ctx.fillText(c.title, cx + cw / 2, cy + 38);
-
-        ctx.font = '20px VT323, monospace';
-        ctx.fillStyle = c.color;
-        ctx.fillText(c.subtitle, cx + cw / 2, cy + 65);
-
-        ctx.textAlign = 'left';
-        ctx.font = '18px VT323, monospace';
-        ctx.fillStyle = '#aaaaaa';
-        const words = c.desc.split(' ');
-        let line = '';
-        let ty = cy + 95;
-        for (let w = 0; w < words.length; w++) {
-          const test = line + words[w] + ' ';
-          if (ctx.measureText(test).width > cw - 30 && w > 0) {
-            ctx.fillText(line, cx + 15, ty);
-            line = words[w] + ' ';
-            ty += 20;
-          } else {
-            line = test;
-          }
-        }
-        ctx.fillText(line, cx + 15, ty);
-
-        const btnHover = (G.mouseX >= cx + 20 && G.mouseX <= cx + cw - 20 && G.mouseY >= cy + ch - 50 && G.mouseY <= cy + ch - 10);
-        ctx.fillStyle = btnHover ? '#006633' : '#003318';
-        ctx.fillRect(cx + 20, cy + ch - 50, cw - 40, 40);
-        ctx.strokeStyle = btnHover ? '#00ff88' : '#00aa55';
-        ctx.lineWidth = 2;
-        ctx.strokeRect(cx + 20, cy + ch - 50, cw - 40, 40);
-
-        ctx.textAlign = 'center';
-        ctx.font = '24px VT323, monospace';
-        ctx.fillStyle = btnHover ? '#ffffff' : '#00ff88';
-        ctx.fillText(`▶ ЗАПУСТИТЬ СМЕНУ ${c.night}`, cx + cw / 2, cy + ch - 24);
-      }
-
-      // Row 2: Night 5, Night 6, Custom Night
-      const nightCardsRow2 = [
-        { night: 5, title: 'СМЕНА 5 / NIGHT 5', subtitle: 'ФИНАЛ РАБОЧЕЙ НЕДЕЛИ', desc: 'Предельное напряжение. Все 4 аниматроника атакуют с максимальным давлением. Появление Золотого Фредди. Награда за победу: ★ Первая Звезда.', color: '#dd3333' },
-        { night: 6, title: 'СМЕНА 6 / NIGHT 6', subtitle: 'КОШМАРНАЯ СВЕРХУРОЧНАЯ', desc: 'Усиленный ИИ кошмара. Экстремальный расход энергии, частые заклинивания и атаки Фокси. Награда за победу: ★★ Вторая Звезда.', color: '#cc2266' },
-        { night: 7, title: 'CUSTOM NIGHT / ЭКСТРА', subtitle: 'ПОЛНЫЙ КОНТРОЛЬ НАД ИИ', desc: 'Индивидуальная настройка уровней ИИ от 0 до 20 для каждого робота. Испытание 20/20/20/20. Награда за победу: ★★★ Третья Звезда.', color: '#ffd700' }
-      ];
-
-      for (let j = 0; j < 3; j++) {
-        const c = nightCardsRow2[j];
-        const cx = 220 + j * 510;
-        const cy = 590, cw = 460, ch = 380;
-
-        ctx.fillStyle = '#10141f';
-        ctx.fillRect(cx, cy, cw, ch);
-        ctx.strokeStyle = c.color;
-        ctx.lineWidth = 3;
-        ctx.strokeRect(cx, cy, cw, ch);
-
-        ctx.textAlign = 'center';
-        ctx.font = '34px SpecialElite, monospace';
-        ctx.fillStyle = '#ffffff';
-        ctx.fillText(c.title, cx + cw / 2, cy + 45);
-
-        ctx.font = '22px VT323, monospace';
-        ctx.fillStyle = c.color;
-        ctx.fillText(c.subtitle, cx + cw / 2, cy + 78);
-
-        ctx.textAlign = 'left';
-        ctx.font = '22px VT323, monospace';
-        ctx.fillStyle = '#cccccc';
-        const words = c.desc.split(' ');
-        let line = '';
-        let ty = cy + 125;
-        for (let w = 0; w < words.length; w++) {
-          const test = line + words[w] + ' ';
-          if (ctx.measureText(test).width > cw - 40 && w > 0) {
-            ctx.fillText(line, cx + 20, ty);
-            line = words[w] + ' ';
-            ty += 28;
-          } else {
-            line = test;
-          }
-        }
-        ctx.fillText(line, cx + 20, ty);
-
-        const btnHover = (G.mouseX >= cx + 30 && G.mouseX <= cx + cw - 30 && G.mouseY >= cy + ch - 65 && G.mouseY <= cy + ch - 15);
-        ctx.fillStyle = btnHover ? '#006633' : '#003318';
-        ctx.fillRect(cx + 30, cy + ch - 65, cw - 60, 50);
-        ctx.strokeStyle = btnHover ? '#00ff88' : '#00aa55';
-        ctx.lineWidth = 2;
-        ctx.strokeRect(cx + 30, cy + ch - 65, cw - 60, 50);
-
-        ctx.textAlign = 'center';
-        ctx.font = '28px VT323, monospace';
-        ctx.fillStyle = btnHover ? '#ffffff' : '#00ff88';
-        ctx.fillText((c.night === 7) ? '⚙️ ОТКРЫТЬ CUSTOM NIGHT' : `▶ ЗАПУСТИТЬ СМЕНУ ${c.night}`, cx + cw / 2, cy + ch - 32);
+        ctx.font = '36px SpecialElite, monospace';
+        ctx.fillStyle = hover ? '#44ffaa' : '#ffffff';
+        ctx.fillText(n.label, n.x, by + 50);
       }
       return;
     }
 
-    // Character Dossier View
-    const animDetails = [
+    // Animatronic showcase view
+    const characters = [
       {
-        img: images.extra_freddy,
-        title: 'FREDDY FAZBEAR (ФРЕДДИ ФАЗБЕР) — ТАКТИЧЕСКИЙ ЛИДЕР',
-        cadence: '3.02 секунды (активируется с 3-й ночи, в темноте атакует мгновенно)',
-        route: 'CAM 1A (Сцена) -> CAM 1B (Зал) -> CAM 7 (Туалеты) -> CAM 6 (Кухня [Аудио]) -> CAM 4A (Вост. холл) -> CAM 4B (Угол) -> Офис',
-        behavior: 'Перемещается исключительно тогда, когда камера НЕ направлена на него. При каждом шаге издает зловещий низкий смех. Подглядывание за ним через монитор полностью сковывает его движения (эффект Camera Stall). Если игрок опустит монитор, когда Фредди в углу CAM 4B, и правая дверь открыта — атака неминуема.',
-        tactics: 'Постоянно держите камеру на CAM 4B (угол правого коридора) — это полностью блокирует его вход в офис даже при открытой двери! При истощении энергии Фредди начинает медленную осаду под мелодию Тореадора из темноты.'
+        name: 'FREDDY FAZBEAR',
+        role: 'Band Leader & Main Attraction',
+        start: 'CAM 1A (Show Stage)',
+        sound: 'freddy_laugh',
+        img: images.extra_freddy
       },
       {
-        img: images.extra_bonnie,
-        title: 'BONNIE (БОННИ) — НЕУТОМИМЫЙ ОХОТНИК СЛЕПОЙ ЗОНЫ',
-        cadence: '4.97 секунды (активен с 1-й ночи, крайне высокая частота тиков)',
-        route: 'CAM 1A (Сцена) -> CAM 1B (Зал) / CAM 5 (Закулисье) -> CAM 2A (Зап. холл) -> CAM 3 (Кладовка) -> CAM 2B (Угол) -> Левая дверь офиса',
-        behavior: 'Атакует строго с левого фланга. Обладает нелинейным блужданием: способен возвращаться в обеденный зал или заглядывать в кладовую. Оказавшись у двери (слепая зона), виден в свете дверного прожектора. Если игрок не закроет дверь вовремя, Бонни проникает в офис и необратимо блокирует кнопки двери и света.',
-        tactics: 'Регулярно проверяйте левый дверной свет короткими нажатиями. При обнаружении Бонни у окна немедленно закройте левую дверь — постояв около 3 секунд у закрытой двери, он развернется и отступит назад.'
+        name: 'BONNIE',
+        role: 'Guitarist & Hallway Prowler',
+        start: 'CAM 1A (Show Stage)',
+        sound: 'screamer',
+        img: images.extra_bonnie
       },
       {
-        img: images.extra_chica,
-        title: 'CHICA (ЧИКА) — КУХОННЫЙ СТАЛКЕР ПРАВОГО ФЛАНГА',
-        cadence: '4.98 секунды (активна с 1-2 ночи, оказывает тяжелое психологическое давление)',
-        route: 'CAM 1A (Сцена) -> CAM 1B (Зал) -> CAM 7 (Туалеты) -> CAM 6 (Кухня [Грохот посуды]) -> CAM 4A (Вост. холл) -> CAM 4B (Угол) -> Правая дверь',
-        behavior: 'Охотится по правому коридору. Обожает часами задерживаться на кухне (CAM 6), где видеопоток отсутствует, но слышен характерный лязг кастрюль и сковородок. Заглядывает в окно правой двери, вытягивая шею. При задержке игрока проникает в офис и заклинивает правую панель управления.',
-        tactics: 'Ориентируйтесь по звукам кухни: пока гремит посуда — Чика там. Если звон стих, проверьте правый свет. Закрывайте дверь при ее появлении в окне — через 3 секунды она уйдет обратно.'
+        name: 'CHICA',
+        role: 'Backup Singer & Kitchen Lingerer',
+        start: 'CAM 1A (Show Stage)',
+        sound: 'kitchen_rattle',
+        img: images.extra_chica
       },
       {
-        img: images.extra_foxy,
-        title: 'FOXY THE PIRATE (ФОКСИ) — СВЕРХСКОРОСТНОЙ СПРИНТЕР ПИРАТСКОЙ БУХТЫ',
-        cadence: '5.01 секунды (активен со 2-й ночи, реакция на недостаток внимания)',
-        route: 'CAM 1C (Пиратская бухта) -> CAM 2A (Западный холл: Спринт) -> Левая дверь Офиса',
-        behavior: 'Скрывается за занавесками Пиратской бухты. Проходит 4 строгие фазы: 1) Скрыт; 2) Выглядывает наружу; 3) Вышел из бухты; 4) Бухта пуста — спринт по западному холлу! Игрок обязан мониторить бухту, чтобы сбивать его таймер подготовки. При ударе о закрытую дверь отнимает 1-6% драгоценной энергии батареи.',
-        tactics: 'Открытие любого монитора сбивает его таймер на 1.5с, а прямой взгляд на CAM 1C замораживает его на 8-14 секунд. Услышав топот шагов или надпись IT\'S ME в бухте, мгновенно захлопывайте левую дверь!'
+        name: 'FOXY THE PIRATE',
+        role: 'Secluded Out-of-Order Entertainer',
+        start: 'CAM 1C (Pirate Cove)',
+        sound: 'foxy_song',
+        img: images.extra_foxy
       },
       {
-        img: images.extra_golden_freddy,
-        title: 'GOLDEN FREDDY (ЗОЛОТОЙ ФРЕДДИ) — ТЕЛЕПОРТИРУЮЩИЙСЯ ПРИЗРАК',
-        cadence: 'Случайный спавн при опускании монитора (ночи 5-7) или через постер CAM 2B',
-        route: 'CAM 2B (Постер искажается) -> Мгновенная материализация прямо в кабинете охранника',
-        behavior: 'Потусторонний фантом. Появляется прямо на полу офиса в неестественной позе, вызывая слуховые галлюцинации и вспышки психоделических надписей "IT\'S ME". Игнорирует закрытые двери. Если игрок задержится более чем на 1.2 секунды — вызывает фатальный скример и крушение охранной системы.',
-        tactics: 'ЕДИНСТВЕННАЯ КОНТРМЕРА: Мгновенно поднять планшет монитора обратно! Поднятие монитора немедленно изгоняет призрака из офиса.'
+        name: 'GOLDEN FREDDY',
+        role: 'Supernatural Hallucination',
+        start: 'Unknown Manifestation',
+        sound: 'golden_freddy_scream',
+        img: images.extra_golden_freddy
       }
     ];
 
-    const selAnim = animDetails[G.extraSelectedAnim];
+    const current = characters[G.extraSelectedAnim];
 
-    ctx.fillStyle = '#0b0d14';
-    ctx.fillRect(120, 230, 600, 780);
-    ctx.strokeStyle = '#232838';
-    ctx.lineWidth = 2;
-    ctx.strokeRect(120, 230, 600, 780);
-
-    if (selAnim.img && selAnim.img.complete) {
-      const iw = selAnim.img.width;
-      const ih = selAnim.img.height;
-      const scale = Math.min(520 / iw, 620 / ih);
+    // Character preview portrait
+    if (current.img && current.img.complete) {
+      const iw = current.img.width;
+      const ih = current.img.height;
+      const scale = Math.min(600 / iw, 720 / ih);
       const dw = iw * scale;
       const dh = ih * scale;
-      const dx = 120 + (600 - dw) / 2;
-      const dy = 245 + (630 - dh) / 2;
-      ctx.drawImage(selAnim.img, dx, dy, dw, dh);
+      const dx = 200 + (600 - dw) / 2;
+      const dy = 250 + (720 - dh) / 2;
+      ctx.drawImage(current.img, dx, dy, dw, dh);
     }
-    ctx.strokeStyle = '#353c50';
-    ctx.strokeRect(150, 245, 540, 630);
 
-    const hoverAudio = (G.mouseX >= 150 && G.mouseX <= 690 && G.mouseY >= 920 && G.mouseY <= 985);
-    ctx.fillStyle = hoverAudio ? '#1e3828' : '#0f2016';
-    ctx.fillRect(150, 920, 540, 65);
-    ctx.strokeStyle = hoverAudio ? '#00ff88' : '#00aa55';
+    // Name and details
+    ctx.textAlign = 'left';
+    ctx.font = '54px SpecialElite, monospace';
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText(current.name, 900, 320);
+
+    ctx.font = '32px VT323, monospace';
+    ctx.fillStyle = '#aaaaaa';
+    ctx.fillText(`LOCATION: ${current.start}`, 900, 380);
+    ctx.fillText(`DESIGNATION: ${current.role}`, 900, 420);
+
+    // Audio test button in FNaF style
+    const hoverSound = (G.mouseX >= 900 && G.mouseX <= 1260 && G.mouseY >= 500 && G.mouseY <= 570);
+    ctx.fillStyle = hoverSound ? '#222230' : '#101018';
+    ctx.fillRect(900, 500, 360, 70);
+    ctx.strokeStyle = hoverSound ? '#ffffff' : '#333344';
     ctx.lineWidth = 2;
-    ctx.strokeRect(150, 920, 540, 65);
+    ctx.strokeRect(900, 500, 360, 70);
 
     ctx.textAlign = 'center';
-    ctx.font = '36px VT323, monospace';
-    ctx.fillStyle = '#00ff88';
-    ctx.fillText('▶ ВОСПРОИЗВЕСТИ СИГНАТУРНЫЙ ЗВУК', 420, 963);
+    ctx.font = '32px SpecialElite, monospace';
+    ctx.fillStyle = hoverSound ? '#ffffff' : '#888888';
+    ctx.fillText('PLAY SOUND', 1080, 545);
 
-    ctx.fillStyle = '#0a0c13';
-    ctx.fillRect(750, 230, 1050, 780);
-    ctx.strokeStyle = '#232838';
-    ctx.lineWidth = 2;
-    ctx.strokeRect(750, 230, 1050, 780);
-
-    ctx.textAlign = 'left';
-    ctx.fillStyle = '#ffffff';
-    ctx.font = '36px SpecialElite, monospace';
-    ctx.fillText(selAnim.title, 780, 280);
-
-    ctx.strokeStyle = '#00e5ff';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(780, 300);
-    ctx.lineTo(1760, 300);
-    ctx.stroke();
-
-    function wrapText(text, x, y, maxWidth, lineHeight, font, fillStyle) {
-      ctx.font = font;
-      ctx.fillStyle = fillStyle;
-      const words = text.split(' ');
-      let line = '';
-      let curY = y;
-      for (let n = 0; n < words.length; n++) {
-        const testLine = line + words[n] + ' ';
-        const metrics = ctx.measureText(testLine);
-        if (metrics.width > maxWidth && n > 0) {
-          ctx.fillText(line, x, curY);
-          line = words[n] + ' ';
-          curY += lineHeight;
-        } else {
-          line = testLine;
-        }
-      }
-      ctx.fillText(line, x, curY);
-      return curY + lineHeight;
-    }
-
-    let textY = 345;
-    ctx.font = '28px VT323, monospace';
-    ctx.fillStyle = '#00e5ff';
-    ctx.fillText('[КАДЕНЦИЯ И ТАЙМИНГ ПРОВЕРОК]', 780, textY);
-    textY = wrapText(selAnim.cadence, 780, textY + 35, 980, 32, '26px VT323, monospace', '#cccccc');
-
-    textY += 15;
-    ctx.font = '28px VT323, monospace';
-    ctx.fillStyle = '#ffd700';
-    ctx.fillText('[МАРШРУТ ПЕРЕМЕЩЕНИЯ]', 780, textY);
-    textY = wrapText(selAnim.route, 780, textY + 35, 980, 32, '26px VT323, monospace', '#cccccc');
-
-    textY += 15;
-    ctx.font = '28px VT323, monospace';
-    ctx.fillStyle = '#ff5577';
-    ctx.fillText('[ПОВЕДЕНИЕ И AI ШАБЛОН]', 780, textY);
-    textY = wrapText(selAnim.behavior, 780, textY + 35, 980, 32, '26px VT323, monospace', '#cccccc');
-
-    textY += 15;
-    ctx.font = '28px VT323, monospace';
-    ctx.fillStyle = '#55ff77';
-    ctx.fillText('[КОНТРМЕРЫ И СТРАТЕГИЯ ВЫЖИВАНИЯ]', 780, textY);
-    wrapText(selAnim.tactics, 780, textY + 35, 980, 32, '26px VT323, monospace', '#cccccc');
     return;
   }
 
-  // ---------------------------------------------------------------------------
-  // 4. SHIFT INTRO (12:00 AM)
-  // ---------------------------------------------------------------------------
+  // Shift Intro (12:00 AM)
   if (G.gameState === 'shift_intro') {
     ctx.fillStyle = '#000000';
     ctx.fillRect(0, 0, 1920, 1080);
@@ -572,40 +391,33 @@ function render() {
     ctx.fillStyle = '#aaaaaa';
     const suffix = (G.currentNight === 1) ? '1st' : (G.currentNight === 2) ? '2nd' : (G.currentNight === 3) ? '3rd' : `${G.currentNight}th`;
     ctx.fillText(`${suffix} Night`, 960, 580);
-    if (G.currentNight === 7) {
-      ctx.font = '40px SpecialElite, monospace';
-      ctx.fillStyle = '#ff4444';
-      ctx.fillText('CUSTOM NIGHT CHALLENGE', 960, 660);
-    }
     return;
   }
 
-  // ---------------------------------------------------------------------------
-  // 5. GAME OVER & JUMPSCARE
-  // ---------------------------------------------------------------------------
+  // Game over / Jumpscare
   if (G.gameState === 'gameover') {
     ctx.fillStyle = '#000000';
     ctx.fillRect(0, 0, 1920, 1080);
 
-    const maxScareTime = (G.jumpscareType === 'golden_freddy' || G.jumpscareType === 'entity5') ? 9.35 : 1.4;
+    const maxScareTime = (G.jumpscareType === 'golden_freddy') ? 9.35 : 1.4;
     if (G.jumpscareTimer < maxScareTime) {
       let scareImg = null;
-      if (G.jumpscareType === 'freddy' || G.jumpscareType === 'maler') {
+      if (G.jumpscareType === 'freddy') {
         const idx = Math.min(6, G.jumpscareFrame);
         scareImg = images['freddy_scare_' + idx];
-      } else if (G.jumpscareType === 'freddy_blackout' || G.jumpscareType === 'maler_blackout') {
+      } else if (G.jumpscareType === 'freddy_blackout') {
         const idx = Math.min(20, G.jumpscareFrame);
         scareImg = images['freddy_blackout_' + idx];
-      } else if (G.jumpscareType === 'bonnie' || G.jumpscareType === 'karkas') {
+      } else if (G.jumpscareType === 'bonnie') {
         const idx = Math.min(6, G.jumpscareFrame);
         scareImg = images['bonnie_scare_' + idx];
-      } else if (G.jumpscareType === 'chica' || G.jumpscareType === 'plague') {
+      } else if (G.jumpscareType === 'chica') {
         const idx = Math.min(5, G.jumpscareFrame);
         scareImg = images['chica_scare_' + idx];
-      } else if (G.jumpscareType === 'foxy' || G.jumpscareType === 'dash') {
+      } else if (G.jumpscareType === 'foxy') {
         const idx = Math.min(6, G.jumpscareFrame);
         scareImg = images['foxy_scare_' + idx];
-      } else if (G.jumpscareType === 'golden_freddy' || G.jumpscareType === 'entity5') {
+      } else if (G.jumpscareType === 'golden_freddy') {
         scareImg = images['golden_freddy_scare'];
       }
 
@@ -616,9 +428,7 @@ function render() {
     return;
   }
 
-  // ---------------------------------------------------------------------------
-  // 6. CRASHED (1987 EASTER EGG)
-  // ---------------------------------------------------------------------------
+  // 1987 Easter egg crash
   if (G.gameState === 'crashed') {
     ctx.fillStyle = '#05070a';
     ctx.fillRect(0, 0, 1920, 1080);
@@ -691,9 +501,7 @@ function render() {
     return;
   }
 
-  // ---------------------------------------------------------------------------
-  // 7. VICTORY (6:00 AM)
-  // ---------------------------------------------------------------------------
+  // 6:00 AM Victory sequence
   if (G.gameState === 'win') {
     ctx.fillStyle = '#000000';
     ctx.fillRect(0, 0, 1920, 1080);
@@ -718,9 +526,7 @@ function render() {
     return;
   }
 
-  // ---------------------------------------------------------------------------
-  // 8. OFFICE VIEW (WHEN MONITOR IS DOWN)
-  // ---------------------------------------------------------------------------
+  // Office view
   if (G.tabletState !== 'open') {
     const ox = G.panX;
 
@@ -730,24 +536,24 @@ function render() {
         bg = images.office_powerout;
       } else if (G.blackoutStage === 2) {
         if (G.blackoutFreddyFlickerState === 0) {
-          bg = images.office_freddy_eyes || images.office_maler_eyes;
+          bg = images.office_freddy_eyes;
         } else if (G.blackoutFreddyFlickerState === 1) {
-          bg = images.office_freddy_eyes_dim || images.office_maler_eyes_dim;
+          bg = images.office_freddy_eyes_dim;
         } else {
           bg = images.office_powerout;
         }
       }
     } else if (G.lightLeftOn) {
-      bg = (G.bonnie.pos === 7) ? images.office_karkas_window : images.office_left_light;
+      bg = (G.bonnie.pos === 7) ? images.office_bonnie_window : images.office_left_light;
     } else if (G.lightRightOn) {
-      bg = (G.chica.pos === 7) ? images.office_plague_window : images.office_right_light;
+      bg = (G.chica.pos === 7) ? images.office_chica_window : images.office_right_light;
     }
 
     if (bg && bg.complete) {
       ctx.drawImage(bg, ox, 0, 2400, 1080);
     }
 
-    // Desk Fan (3 frames)
+    // Desk fan
     if (!G.blackout) {
       const fanIdx = (Math.floor(performance.now() / 55) % 3) + 1;
       const fanImg = images['fan_' + fanIdx];
@@ -756,7 +562,7 @@ function render() {
       }
     }
 
-    // Left Door (16 frames)
+    // Left door
     const lFrame = Math.round(G.doorLeftFrame);
     if (lFrame > 0) {
       const dImg = images['door_left_' + lFrame];
@@ -765,8 +571,8 @@ function render() {
       }
     }
 
-    // Bonnie Window Reflection
-    if (G.doorLeftClosed && G.lightLeftOn && G.bonnie.pos === 7) {
+    // Bonnie window reflection
+    if (G.doorLeftClosed && G.lightLeftOn && (G.bonnie.pos === 7 || G.bonnie.pos === 6)) {
       const refImg = images.bonnie_window_reflection;
       if (refImg && refImg.complete) {
         ctx.save();
@@ -776,7 +582,7 @@ function render() {
       }
     }
 
-    // Right Door (16 frames)
+    // Right door
     const rFrame = Math.round(G.doorRightFrame);
     if (rFrame > 0) {
       const dImg = images['door_right_' + rFrame];
@@ -785,7 +591,7 @@ function render() {
       }
     }
 
-    // Left Door Button Panel (x = 65, y = 380, w = 150, h = 340)
+    // Left door buttons
     let lBtn = images.btn_left_off;
     if (G.doorLeftClosed && G.lightLeftOn) lBtn = images.btn_left_both;
     else if (G.doorLeftClosed) lBtn = images.btn_left_door;
@@ -794,7 +600,7 @@ function render() {
       ctx.drawImage(lBtn, ox + 65, 380, 150, 340);
     }
 
-    // Right Door Button Panel (x = 2210, y = 380, w = 150, h = 340)
+    // Right door buttons
     let rBtn = images.btn_right_off;
     if (G.doorRightClosed && G.lightRightOn) rBtn = images.btn_right_both;
     else if (G.doorRightClosed) rBtn = images.btn_right_door;
@@ -803,22 +609,20 @@ function render() {
       ctx.drawImage(rBtn, ox + 2210, 380, 150, 340);
     }
 
-    // Golden Freddy Slumped on Floor
+    // Golden Freddy slumped in office
     if (G.goldenFreddy.active && images.golden_freddy_office && images.golden_freddy_office.complete) {
       ctx.drawImage(images.golden_freddy_office, ox + 840, 380, 630, 630);
     }
   }
 
-  // ---------------------------------------------------------------------------
-  // 9. CAMERA SYSTEM (WHEN MONITOR IS UP)
-  // ---------------------------------------------------------------------------
+  // Camera system
   if (G.tabletState === 'open') {
     const feedImg = getCameraFeedImage();
     if (feedImg && feedImg.complete) {
       ctx.drawImage(feedImg, 0, 0, 1920, 1080);
     }
 
-    // Static Noise Overlay
+    // Static overlay
     const staticImg = images['static' + G.staticFrame];
     if (staticImg && staticImg.complete) {
       ctx.globalAlpha = 0.28;
@@ -826,13 +630,13 @@ function render() {
       ctx.globalAlpha = 1.0;
     }
 
-    // Floorplan Minimap
+    // Minimap
     const mapImg = images.cam_map_clean;
     if (mapImg && mapImg.complete) {
       ctx.drawImage(mapImg, 1300, 485, 580, 580);
     }
 
-    // Camera Buttons
+    // Camera buttons
     for (const b of camButtons) {
       const active = (G.selectedCam === b.id);
       const borderImg = active ? images.cam_btn_active : images.cam_btn_normal;
@@ -858,7 +662,7 @@ function render() {
       }
     }
 
-    // Camera Header & Blinking REC Dot
+    // Header and recording dot
     ctx.font = '50px VT323, monospace';
     ctx.fillStyle = '#ffffff';
     ctx.textAlign = 'left';
@@ -874,9 +678,7 @@ function render() {
     }
   }
 
-  // ---------------------------------------------------------------------------
-  // 10. TABLET FLIP TRANSITION
-  // ---------------------------------------------------------------------------
+  // Tablet transition
   if (G.tabletState === 'opening' || G.tabletState === 'closing') {
     const frameNum = Math.max(1, Math.min(11, Math.round(G.tabletFrame)));
     const pad = (frameNum < 10 ? '0' : '') + frameNum;
@@ -886,18 +688,13 @@ function render() {
     }
   }
 
-  // ---------------------------------------------------------------------------
-  // 11. HALLUCINATION OVERLAY
-  // ---------------------------------------------------------------------------
+  // Hallucination overlay
   if (G.halluActive && G.halluImg && G.halluImg.complete) {
     ctx.drawImage(G.halluImg, 0, 0, 1920, 1080);
   }
 
-  // ---------------------------------------------------------------------------
-  // 12. HEADS-UP DISPLAY (IN-GAME HUD)
-  // ---------------------------------------------------------------------------
+  // In-game HUD
   if (G.gameState === 'playing') {
-    // Mute Call Button
     if (G.phoneCallActive && !G.phoneCallMuted) {
       if (images.mute_call && images.mute_call.complete) {
         ctx.drawImage(images.mute_call, 60, 70, 180, 46);
@@ -914,7 +711,6 @@ function render() {
       }
     }
 
-    // Clock & Night
     ctx.font = '72px VT323, monospace';
     ctx.fillStyle = '#ffffff';
     ctx.textAlign = 'right';
@@ -924,7 +720,6 @@ function render() {
     ctx.fillStyle = '#ffffff';
     ctx.fillText(`Night ${G.currentNight}`, 1860, 120);
 
-    // Power Left & Usage Meter
     ctx.textAlign = 'left';
     ctx.font = '48px VT323, monospace';
     ctx.fillStyle = (G.power > 15) ? '#ffffff' : '#ff2222';
@@ -943,7 +738,6 @@ function render() {
       ctx.fillRect(usageStartX + i * 22, 966, 16, 26);
     }
 
-    // Monitor Toggle Chevron Bar (Bottom Screen)
     if (!G.blackout) {
       if (images.monitor_bar && images.monitor_bar.complete) {
         ctx.drawImage(images.monitor_bar, 660, 1000, 600, 70);

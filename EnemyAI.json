@@ -69,9 +69,9 @@
             "value": "ModVarGlobal"
           },
           "parameters": [
-            "Karkas_Pos",
+            "Bonnie_Pos",
             "+",
-            "RandomInRange(1, 20) <= GlobalVariable(Karkas_Level) ? 1 : 0"
+            "RandomInRange(1, 20) <= GlobalVariable(Bonnie_Level) ? 1 : 0"
           ]
         },
         {
@@ -79,9 +79,9 @@
             "value": "ModVarGlobal"
           },
           "parameters": [
-            "Plague_Pos",
+            "Chica_Pos",
             "+",
-            "RandomInRange(1, 20) <= GlobalVariable(Plague_Level) ? 1 : 0"
+            "RandomInRange(1, 20) <= GlobalVariable(Chica_Level) ? 1 : 0"
           ]
         },
         {
@@ -89,9 +89,9 @@
             "value": "ModVarGlobal"
           },
           "parameters": [
-            "Maler_Pos",
+            "Freddy_Pos",
             "+",
-            "(RandomInRange(1, 20) <= GlobalVariable(Maler_Level) && (GlobalVariable(Monitor_Open) == 0 || GlobalVariable(SelectedCam) != '1A')) ? 1 : 0"
+            "(RandomInRange(1, 20) <= GlobalVariable(Freddy_Level) && (GlobalVariable(Monitor_Open) == 0 || GlobalVariable(SelectedCam) != '1A')) ? 1 : 0"
           ]
         }
       ]
@@ -124,7 +124,7 @@
             "value": "VarGlobal"
           },
           "parameters": [
-            "Dash_Stage",
+            "Foxy_Stage",
             "<",
             "4"
           ]
@@ -136,9 +136,9 @@
             "value": "ModVarGlobal"
           },
           "parameters": [
-            "Dash_Stage",
+            "Foxy_Stage",
             "+",
-            "RandomInRange(1, 20) <= GlobalVariable(Dash_Level) ? 1 : 0"
+            "RandomInRange(1, 20) <= GlobalVariable(Foxy_Level) ? 1 : 0"
           ]
         }
       ]
@@ -151,7 +151,7 @@
             "value": "VarGlobal"
           },
           "parameters": [
-            "Dash_Stage",
+            "Foxy_Stage",
             "=",
             "4"
           ]
@@ -172,7 +172,7 @@
           },
           "parameters": [
             "",
-            "dash_sprint.ogg",
+            "foxy_sprint.ogg",
             "no",
             "100",
             "1"
@@ -188,7 +188,7 @@
             "value": "VarGlobal"
           },
           "parameters": [
-            "Dash_Stage",
+            "Foxy_Stage",
             "=",
             "4"
           ]
@@ -200,7 +200,7 @@
             "value": "ModVarGlobal"
           },
           "parameters": [
-            "Dash_SprintTimer",
+            "Foxy_SprintTimer",
             "+",
             "TimeDelta()"
           ]
@@ -215,7 +215,7 @@
             "value": "VarGlobal"
           },
           "parameters": [
-            "Dash_Stage",
+            "Foxy_Stage",
             "=",
             "4"
           ]
@@ -225,7 +225,7 @@
             "value": "VarGlobal"
           },
           "parameters": [
-            "Dash_SprintTimer",
+            "Foxy_SprintTimer",
             ">=",
             "2.5"
           ]
@@ -269,7 +269,7 @@
             "value": "ModVarGlobal"
           },
           "parameters": [
-            "Dash_Stage",
+            "Foxy_Stage",
             "=",
             "1"
           ]
@@ -279,7 +279,7 @@
             "value": "ModVarGlobal"
           },
           "parameters": [
-            "Dash_SprintTimer",
+            "Foxy_SprintTimer",
             "=",
             "0"
           ]
@@ -294,7 +294,7 @@
             "value": "VarGlobal"
           },
           "parameters": [
-            "Dash_Stage",
+            "Foxy_Stage",
             "=",
             "4"
           ]
@@ -304,7 +304,7 @@
             "value": "VarGlobal"
           },
           "parameters": [
-            "Dash_SprintTimer",
+            "Foxy_SprintTimer",
             ">=",
             "2.5"
           ]
@@ -355,7 +355,7 @@
             "value": "SetAnimationName"
           },
           "parameters": [
-            "DashJumpscare",
+            "FoxyJumpscare",
             "\"Scare\""
           ]
         },
@@ -381,7 +381,7 @@
             "value": "VarGlobal"
           },
           "parameters": [
-            "Karkas_Pos",
+            "Bonnie_Pos",
             "=",
             "6"
           ]
@@ -415,7 +415,7 @@
             "value": "ModVarGlobal"
           },
           "parameters": [
-            "Karkas_Pos",
+            "Bonnie_Pos",
             "=",
             "2"
           ]
@@ -425,7 +425,7 @@
             "value": "ModVarGlobal"
           },
           "parameters": [
-            "Karkas_BlindspotTimer",
+            "Bonnie_BlindspotTimer",
             "=",
             "0"
           ]
@@ -440,7 +440,7 @@
             "value": "VarGlobal"
           },
           "parameters": [
-            "Karkas_Pos",
+            "Bonnie_Pos",
             "=",
             "6"
           ]
@@ -462,7 +462,7 @@
             "value": "ModVarGlobal"
           },
           "parameters": [
-            "Karkas_BlindspotTimer",
+            "Bonnie_BlindspotTimer",
             "+",
             "TimeDelta()"
           ]
@@ -477,7 +477,7 @@
             "value": "VarGlobal"
           },
           "parameters": [
-            "Karkas_Pos",
+            "Bonnie_Pos",
             "=",
             "6"
           ]
@@ -497,7 +497,7 @@
             "value": "VarGlobal"
           },
           "parameters": [
-            "Karkas_BlindspotTimer",
+            "Bonnie_BlindspotTimer",
             ">=",
             "5.0"
           ]
@@ -538,7 +538,7 @@
             "value": "SetAnimationName"
           },
           "parameters": [
-            "KarkasJumpscare",
+            "BonnieJumpscare",
             "\"Scare\""
           ]
         },
@@ -564,7 +564,7 @@
             "value": "VarGlobal"
           },
           "parameters": [
-            "Plague_Pos",
+            "Chica_Pos",
             "=",
             "7"
           ]
@@ -598,7 +598,7 @@
             "value": "ModVarGlobal"
           },
           "parameters": [
-            "Plague_Pos",
+            "Chica_Pos",
             "=",
             "2"
           ]
@@ -608,7 +608,7 @@
             "value": "ModVarGlobal"
           },
           "parameters": [
-            "Plague_BlindspotTimer",
+            "Chica_BlindspotTimer",
             "=",
             "0"
           ]
@@ -623,7 +623,7 @@
             "value": "VarGlobal"
           },
           "parameters": [
-            "Plague_Pos",
+            "Chica_Pos",
             "=",
             "7"
           ]
@@ -645,7 +645,7 @@
             "value": "ModVarGlobal"
           },
           "parameters": [
-            "Plague_BlindspotTimer",
+            "Chica_BlindspotTimer",
             "+",
             "TimeDelta()"
           ]
@@ -660,7 +660,7 @@
             "value": "VarGlobal"
           },
           "parameters": [
-            "Plague_Pos",
+            "Chica_Pos",
             "=",
             "7"
           ]
@@ -680,7 +680,7 @@
             "value": "VarGlobal"
           },
           "parameters": [
-            "Plague_BlindspotTimer",
+            "Chica_BlindspotTimer",
             ">=",
             "5.0"
           ]
@@ -721,7 +721,7 @@
             "value": "SetAnimationName"
           },
           "parameters": [
-            "PlagueJumpscare",
+            "ChicaJumpscare",
             "\"Scare\""
           ]
         },
@@ -747,7 +747,7 @@
             "value": "VarGlobal"
           },
           "parameters": [
-            "Maler_Pos",
+            "Freddy_Pos",
             "=",
             "6"
           ]
@@ -808,7 +808,7 @@
             "value": "SetAnimationName"
           },
           "parameters": [
-            "MalerJumpscare",
+            "FreddyJumpscare",
             "\"Scare\""
           ]
         },
