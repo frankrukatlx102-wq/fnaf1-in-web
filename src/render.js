@@ -188,15 +188,15 @@ function render() {
 
     // Ready button
     const hoverReady = (G.mouseX >= 1380 && G.mouseX <= 1740 && G.mouseY >= 740 && G.mouseY <= 830);
-    ctx.fillStyle = hoverReady ? '#1b4d24' : '#0e2b14';
+    ctx.fillStyle = hoverReady ? '#222228' : '#0d0d12';
     ctx.fillRect(1380, 740, 360, 90);
-    ctx.strokeStyle = hoverReady ? '#44ff66' : '#22aa44';
-    ctx.lineWidth = 3;
+    ctx.strokeStyle = hoverReady ? '#ffffff' : '#444444';
+    ctx.lineWidth = 2;
     ctx.strokeRect(1380, 740, 360, 90);
 
     ctx.textAlign = 'center';
     ctx.font = '50px VT323, monospace';
-    ctx.fillStyle = hoverReady ? '#ffffff' : '#44ff66';
+    ctx.fillStyle = hoverReady ? '#ffffff' : '#888888';
     ctx.fillText('READY', 1560, 800);
 
     // Back button
@@ -234,12 +234,12 @@ function render() {
 
     // Tabs: Freddy, Bonnie, Chica, Foxy, Golden Freddy, Night Select
     const rosterList = [
-      { id: 0, label: 'FREDDY', color: '#c28544' },
-      { id: 1, label: 'BONNIE', color: '#6866b8' },
-      { id: 2, label: 'CHICA',  color: '#cccc33' },
-      { id: 3, label: 'FOXY',   color: '#c23333' },
-      { id: 4, label: 'GOLDEN FREDDY', color: '#ffd700' },
-      { id: 5, label: 'NIGHTS', color: '#44ffaa' }
+      { id: 0, label: 'FREDDY' },
+      { id: 1, label: 'BONNIE' },
+      { id: 2, label: 'CHICA' },
+      { id: 3, label: 'FOXY' },
+      { id: 4, label: 'GOLDEN FREDDY' },
+      { id: 5, label: 'NIGHTS' }
     ];
 
     for (let i = 0; i < 6; i++) {
@@ -251,7 +251,7 @@ function render() {
       ctx.textAlign = 'center';
       ctx.font = '32px SpecialElite, monospace';
       if (isSel) {
-        ctx.fillStyle = item.color;
+        ctx.fillStyle = '#ffffff';
         ctx.fillText(`[ ${item.label} ]`, bx + 130, 168);
       } else {
         ctx.fillStyle = isHover ? '#ffffff' : '#666666';
@@ -283,63 +283,33 @@ function render() {
         const by = n.y;
         const hover = (G.mouseX >= bx && G.mouseX <= bx + w && G.mouseY >= by && G.mouseY <= by + h);
 
-        ctx.fillStyle = hover ? '#222230' : '#101018';
+        ctx.fillStyle = hover ? '#222228' : '#0d0d12';
         ctx.fillRect(bx, by, w, h);
-        ctx.strokeStyle = hover ? '#ffffff' : '#333344';
+        ctx.strokeStyle = hover ? '#ffffff' : '#33333e';
         ctx.lineWidth = 2;
         ctx.strokeRect(bx, by, w, h);
 
         ctx.textAlign = 'center';
         ctx.font = '36px SpecialElite, monospace';
-        ctx.fillStyle = hover ? '#44ffaa' : '#ffffff';
+        ctx.fillStyle = hover ? '#ffffff' : '#888888';
         ctx.fillText(n.label, n.x, by + 50);
       }
       return;
     }
 
-    // Animatronic showcase view
+    // Animatronic showcase view (monochrome, no descriptions)
     const characters = [
-      {
-        name: 'FREDDY FAZBEAR',
-        role: 'Band Leader & Main Attraction',
-        start: 'CAM 1A (Show Stage)',
-        sound: 'freddy_laugh',
-        img: images.extra_freddy
-      },
-      {
-        name: 'BONNIE',
-        role: 'Guitarist & Hallway Prowler',
-        start: 'CAM 1A (Show Stage)',
-        sound: 'screamer',
-        img: images.extra_bonnie
-      },
-      {
-        name: 'CHICA',
-        role: 'Backup Singer & Kitchen Lingerer',
-        start: 'CAM 1A (Show Stage)',
-        sound: 'kitchen_rattle',
-        img: images.extra_chica
-      },
-      {
-        name: 'FOXY THE PIRATE',
-        role: 'Secluded Out-of-Order Entertainer',
-        start: 'CAM 1C (Pirate Cove)',
-        sound: 'foxy_song',
-        img: images.extra_foxy
-      },
-      {
-        name: 'GOLDEN FREDDY',
-        role: 'Supernatural Hallucination',
-        start: 'Unknown Manifestation',
-        sound: 'golden_freddy_scream',
-        img: images.extra_golden_freddy
-      }
+      { name: 'FREDDY FAZBEAR', sound: 'freddy_laugh', img: images.extra_freddy },
+      { name: 'BONNIE', sound: 'screamer', img: images.extra_bonnie },
+      { name: 'CHICA', sound: 'kitchen_rattle', img: images.extra_chica },
+      { name: 'FOXY', sound: 'foxy_song', img: images.extra_foxy },
+      { name: 'GOLDEN FREDDY', sound: 'golden_freddy_scream', img: images.extra_golden_freddy }
     ];
 
     const current = characters[G.extraSelectedAnim];
 
     // Character preview portrait
-    if (current.img && current.img.complete) {
+    if (current && current.img && current.img.complete) {
       const iw = current.img.width;
       const ih = current.img.height;
       const scale = Math.min(600 / iw, 720 / ih);
@@ -350,29 +320,24 @@ function render() {
       ctx.drawImage(current.img, dx, dy, dw, dh);
     }
 
-    // Name and details
+    // Name (no descriptions)
     ctx.textAlign = 'left';
     ctx.font = '54px SpecialElite, monospace';
     ctx.fillStyle = '#ffffff';
-    ctx.fillText(current.name, 900, 320);
+    ctx.fillText(current.name, 900, 360);
 
-    ctx.font = '32px VT323, monospace';
-    ctx.fillStyle = '#aaaaaa';
-    ctx.fillText(`LOCATION: ${current.start}`, 900, 380);
-    ctx.fillText(`DESIGNATION: ${current.role}`, 900, 420);
-
-    // Audio test button in FNaF style
-    const hoverSound = (G.mouseX >= 900 && G.mouseX <= 1260 && G.mouseY >= 500 && G.mouseY <= 570);
-    ctx.fillStyle = hoverSound ? '#222230' : '#101018';
-    ctx.fillRect(900, 500, 360, 70);
-    ctx.strokeStyle = hoverSound ? '#ffffff' : '#333344';
+    // Audio test button (monochrome)
+    const hoverSound = (G.mouseX >= 900 && G.mouseX <= 1260 && G.mouseY >= 460 && G.mouseY <= 530);
+    ctx.fillStyle = hoverSound ? '#222228' : '#0d0d12';
+    ctx.fillRect(900, 460, 360, 70);
+    ctx.strokeStyle = hoverSound ? '#ffffff' : '#444444';
     ctx.lineWidth = 2;
-    ctx.strokeRect(900, 500, 360, 70);
+    ctx.strokeRect(900, 460, 360, 70);
 
     ctx.textAlign = 'center';
     ctx.font = '32px SpecialElite, monospace';
     ctx.fillStyle = hoverSound ? '#ffffff' : '#888888';
-    ctx.fillText('PLAY SOUND', 1080, 545);
+    ctx.fillText('PLAY SOUND', 1080, 505);
 
     return;
   }

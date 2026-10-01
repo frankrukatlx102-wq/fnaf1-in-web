@@ -372,7 +372,7 @@ canvas.addEventListener('click', (e) => {
     }
 
     // Play Sound button
-    if (mx >= 900 && mx <= 1260 && my >= 500 && my <= 570) {
+    if (mx >= 900 && mx <= 1260 && my >= 460 && my <= 530) {
       if (G.extraSelectedAnim === 0) playSound('freddy_laugh');
       else if (G.extraSelectedAnim === 1) playSound('screamer');
       else if (G.extraSelectedAnim === 2) playSound('kitchen_rattle');
